@@ -1,0 +1,9 @@
+
+Raspberry pi, serial console
+
+mpd, mpc installed.
+
+To add an arbitrary file:
+
+mpc add file:///home/pi/xxxx   (for example)
+
