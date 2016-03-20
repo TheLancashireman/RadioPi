@@ -7,3 +7,9 @@ To add an arbitrary file:
 
 mpc add file:///home/pi/xxxx   (for example)
 
+Python library installed:  http://www.musicpd.org/libs/python-mpd2/
+
+Subversion installed. Repository on Lugh.
+
+Problem: default route not set up at start.
+
