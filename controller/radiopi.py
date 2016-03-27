@@ -12,7 +12,7 @@ lcd = serial.Serial('/dev/ttyUSB0', 9600)
 time.sleep(5)
 lcd.write("\f")
 time.sleep(5)
-lcd.write("Starting ...")
+lcd.write("RadioPi starting ...")
 time.sleep(5)
 
 # Open connection to mpd
@@ -86,6 +86,7 @@ g_artist = ""
 g_album = ""
 g_title = ""
 g_dur = -1
+g_state = ""
 
 lcd_go_artist	= "\033[1;1H"
 lcd_go_album	= "\033[2;1H"
@@ -105,12 +106,22 @@ def HomeScreen():
 
 	mpdstatus = mpdc.status()
 	l_vol = int(mpdstatus['volume'])
-	l_time = int(float(mpdstatus['elapsed']))
+	state = mpdstatus['state']
+	if ( state == "stop" ):
+		l_time = -1
+	else:
+		l_time = int(float(mpdstatus['elapsed']))
 	mpdsong = mpdc.currentsong()
-	l_artist = mpdsong['artist']
-	l_album = mpdsong['album']
-	l_title = mpdsong['title']
-	l_dur = int(mpdsong['time']
+	if ( mpdsong ):
+		l_artist = mpdsong['artist']
+		l_album = mpdsong['album']
+		l_title = mpdsong['title']
+		l_dur = int(mpdsong['time'])
+	else:
+		l_artist = "      RadioPi"
+		l_album = ""
+		l_title = "===== no track ====="
+		l_dur = -1
 
 	if ( g_artist != l_artist ):
 		g_artist = l_artist
@@ -130,21 +141,31 @@ def HomeScreen():
 		lcd.write(g_title);
 		lcd.write(lcd_clreol)
 
-	if ( g_time != l_time ):
-		g_time = l_time
-		mins = l_time / 60
-		secs = l_time % 60
-		s_time = "%02d:%02d"%(mins, secs)
-		lcd.write(lcd_go_time)
-		lcd.write(s_time)
+	if ( l_dur < 0 ):
+		if ( g_dur != l_dur ):
+			g_dur = l_dur
+			g_time = -1
+			lcd.write(lcd_go_time)
+			lcd.write("           ")
+	else:
+		if ( g_time != l_time ):
+			g_time = l_time
+			if ( l_time < 0 ):
+				s_time = "--:--"
+			else:
+				mins = l_time / 60
+				secs = l_time % 60
+				s_time = "%02d:%02d"%(mins, secs)
+			lcd.write(lcd_go_time)
+			lcd.write(s_time)
 
-	if ( g_dur != l_dur ):
-		g_dur = l_dur
-		mins = l_dur / 60
-		secs = l_dur % 60
-		s_time = "/%02d:%02d"%(mins, secs)
-		lcd.write(lcd_go_time)
-		lcd.write(s_time)
+		if ( g_dur != l_dur ):
+			g_dur = l_dur
+			mins = l_dur / 60
+			secs = l_dur % 60
+			s_time = "/%02d:%02d"%(mins, secs)
+			lcd.write(lcd_go_dur)
+			lcd.write(s_time)
 		
 	if ( g_vol != l_vol ):
 		g_vol = l_vol
