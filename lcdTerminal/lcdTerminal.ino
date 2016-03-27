@@ -49,7 +49,7 @@
  *	ESC[cD   - cursor left c columns
  *	ESC[0J   - clear lines above cursor (not including cursor line)
  *	ESC[1J   - clear lines below cursor (including cursor line)
- *	ESC[3J   - clear display
+ *	ESC[2J   - clear display
  *	ESC[0K   - clear to right of cursor (including cursor column)
  *	ESC[1K   - clear to left of cursor (not including cursor column. Xterm might be different)
  *	ESC[2K   - clear line
@@ -547,7 +547,7 @@ void LcdCtrlMoveCursorLeft(void)
 /* LcdCtrlClearLines() - clear lines of the display
  *	ESC[0J   - clear lines above cursor (not including cursor line)
  *	ESC[1J   - clear lines below cursor (including cursor line)
- *	ESC[3J   - clear display
+ *	ESC[2J   - clear display
 */
 void LcdCtrlClearLines(void)
 {
