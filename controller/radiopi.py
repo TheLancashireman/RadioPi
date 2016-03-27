@@ -85,11 +85,13 @@ g_time = -1
 g_artist = ""
 g_album = ""
 g_title = ""
+g_dur = -1
 
 lcd_go_artist	= "\033[1;1H"
 lcd_go_album	= "\033[2;1H"
 lcd_go_title	= "\033[3;1H"
 lcd_go_time		= "\033[4;1H"
+lcd_go_dur		= "\033[4;6H"		# 3 digits
 lcd_go_vol		= "\033[4;18H"		# 3 digits
 lcd_clreol		= "\033[0K"
 
@@ -99,6 +101,7 @@ def HomeScreen():
 	global g_artist
 	global g_album
 	global g_title
+	global g_dur
 
 	mpdstatus = mpdc.status()
 	l_vol = int(mpdstatus['volume'])
@@ -107,6 +110,7 @@ def HomeScreen():
 	l_artist = mpdsong['artist']
 	l_album = mpdsong['album']
 	l_title = mpdsong['title']
+	l_dur = int(mpdsong['time']
 
 	if ( g_artist != l_artist ):
 		g_artist = l_artist
@@ -131,6 +135,14 @@ def HomeScreen():
 		mins = l_time / 60
 		secs = l_time % 60
 		s_time = "%02d:%02d"%(mins, secs)
+		lcd.write(lcd_go_time)
+		lcd.write(s_time)
+
+	if ( g_dur != l_dur ):
+		g_dur = l_dur
+		mins = l_dur / 60
+		secs = l_dur % 60
+		s_time = "/%02d:%02d"%(mins, secs)
 		lcd.write(lcd_go_time)
 		lcd.write(s_time)
 		
