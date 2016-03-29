@@ -38,7 +38,7 @@
  *	FF - cursor to top left, clear screen (Xterm: same as linefeed)
  *	CR - cursor to left column
  *	LF - cursor down one row, with scrolling
- *	VT - cursor down one row, with scrolling
+ *	VT - cursor up one row, with scrolling
  *	BS - cursor one column to left (unless already at left side)
  *
  *	ESC[r;cH - cursor to row r, column c
@@ -226,6 +226,14 @@ void LcdPutc(int ch)
 {
 	if ( col < lcd_ncols )
 	{
+#if 0	/*	Apparently not working on lcd module. Need to set F bit? */
+		/* Use characters with proper descenders.
+		*/
+		if ( ch == 'g' || ch == 'j' || ch == 'p' || ch == 'q' || ch == 'y' )
+		{
+			ch += 128;
+		}
+#endif
 		lcdRows[row][col] = ch;
 		lcd.write(ch);
 		col++;
@@ -348,7 +356,7 @@ int LcdCtrlSeq(int ch)
 				lcd.setCursor(col, row);
 			}
 			else
-			if ( ch == LF || ch == VT )
+			if ( ch == LF )
 			{
 				if ( row >= 3 )
 				{
@@ -358,6 +366,20 @@ int LcdCtrlSeq(int ch)
 				else
 				{
 					row++;
+				}
+				lcd.setCursor(col, row);
+			}
+			else
+			if ( ch == VT )
+			{
+				if ( row <= 0 )
+				{
+					row = 0;		// Defensive
+					LcdScrollDown();
+				}
+				else
+				{
+					row--;
 				}
 				lcd.setCursor(col, row);
 			}
