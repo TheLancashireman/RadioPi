@@ -20,9 +20,9 @@ class MpdHandler:
 			'<<'	: self.SeekBack,
 			'>>'	: self.SeekForward	}
 
-		self.Connect()
+		self.MpdConnect()
 
-	def Connect():
+	def MpdConnect():
 		try
 			self.mpdc.timeout = 10
 			self.mpdc.idletimeout = None
@@ -70,7 +70,7 @@ class MpdHandler:
 	def Event(evt):
 		if evt in self.eventmap.keys:
 			if not self.mpdConnected:
-				self.Connect()
+				self.MpdConnect()
 			if self.mpdConnected:
 				try:
 					self.eventmap[evt]()
