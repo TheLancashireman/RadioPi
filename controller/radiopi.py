@@ -34,9 +34,7 @@ GPIO.setup(encoderA, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(encoderB, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(encoderD, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-stateB = False
-countBase = 1000000
-countRaw = countBase
+countRaw = 0
 
 # Initialise controller state
 mode_Startup = 1
@@ -84,25 +82,18 @@ menu_top = 0		# Position of menu on screen (the item that's on the top line of t
 #===========================================================
 def edgeA(channel):
 	global countRaw
-	global countMax
-	global countMin
-	global stateB
 
-	stateA = GPIO.input(encoderA)
-	stateB = GPIO.input(encoderB)
-	if stateA == stateB:
-		# Increase
-		countRaw += 1
-	else:
-		# Decrease
-		countRaw -= 1
+	countRaw += 1
+	print "A",countRaw
 
 #===========================================================
 # Callback for edge on channel B  (not used)
 #===========================================================
 def edgeB(channel):
-	global stateB
-	stateB = GPIO.input(encoderB)
+	global countRaw
+
+	countRaw -= 1
+	print "B",countRaw
 
 
 #===========================================================
@@ -381,8 +372,8 @@ def Home_Press(p):
 
 #=======================================
 
-GPIO.add_event_detect(encoderA, GPIO.BOTH, callback=edgeA, bouncetime=10)
-#GPIO.add_event_detect(encoderB, GPIO.BOTH, callback=edgeB, bouncetime=100)
+GPIO.add_event_detect(encoderA, GPIO.RISING, callback=edgeA)
+GPIO.add_event_detect(encoderB, GPIO.RISING, callback=edgeB)
 
 StartupScreen()
 mode = mode_Home
@@ -396,9 +387,9 @@ try:
 			time.sleep(0.01)
 
 			# Detect and handle dial rotation
-			if countRaw != countBase:
-				diff = (countRaw - countBase)
-				countRaw = countBase
+			diff = countRaw
+			countRaw = 0
+			if diff != 0:
 				if mode == mode_Home:
 					Home_UpDown(diff)
 				elif mode == mode_Menu:
