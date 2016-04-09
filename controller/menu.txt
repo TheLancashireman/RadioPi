@@ -1,0 +1,34 @@
+
+                Short press    Long press    Turn
+
+HomeScreen:     Play/Pause     Go TopMenu    Volume up/down
+
+Artist
+Album
+Title
+Time/Length Vol
+
+
+TopMenu:        Do current     Go HomeScreen  Up/down menu
+
+Add to playlist
+Manage playlist
+Mount external
+Unmount external
+
+
+AddToPlaylist:
+
+File/Directory list based at given directory
+
+Add all (if directory contains audio files)
+Back to parent
+List of directories
+List of audio files
+
+
+ManagePlaylist:
+
+Clear All
+List of tracks in playlist
+
