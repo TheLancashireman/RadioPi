@@ -3,6 +3,7 @@
 # MpdHandler.py - event handler for MPD
 #
 # (c) David Haworth
+
 import mpd
 from mpd import MPDClient
 

@@ -1,7 +1,13 @@
 #!/usr/bin/python
+#
+# I/R Remote Control input
+#
+# (c) David Haworth
+
 import os
 import select
-import time
+
+irrc_dev = '/dev/hidraw0'
 
 irrc_map = {
 	'\x06\x02\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00'	:	'moon',
@@ -44,48 +50,38 @@ irrc_map = {
 	'\x04 \x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00'		:	'blue',
 	'\x04\x80\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00'	:	'yellow'	}
 
-irrc_present = False
+class IrRc:
+	def __init__(self):
+		self.irrc_present = False
+		self.Open()
 
-try:
-	irrc = open('/dev/hidraw0', 'r')
-except:
-	pass
-
-def irrc_open():
-	global irrc_present
-	global irrc
-
-	if os.path.exists('/dev/hidraw0'):
-		try:
-			os.system('sudo chmod +r /dev/hidraw0')
-			irrc = open('/dev/hidraw0', 'r')
-			irrc_present = True
-		except:
-			irrc_present = False
-
-def irrc_key():
-	global irrc_present
-	global irrc
-
-	k = ''
-	if not irrc_present:
-		irrc_open()
-	if irrc_present:
-		try:
-			rrdy, wrdy, xrdy = select.select([irrc], [], [], 0)
-			if rrdy:
-				q = irrc.read(16)
-				k = irrc_map[q]
-		except IOError:
-			irrc_present = False
+	def Open(self):
+		if os.path.exists(irrc_dev):
 			try:
-				irrc.close()
+				os.system('sudo chmod +r '+irrc_dev)
+				self.irrc = open(irrc_dev, 'r')
+				self.irrc_present = True
 			except:
-				pass
-	return k
+				self.irrc_present = False
 
-while True:
-	time.sleep(0.05)
-	k = irrc_key()
-	if k != '':
-		print k
+	def Scan(self):
+		if not self.irrc_present:
+			self.Open()
+
+	def GetEvent(self):					# Called frequently to read keys from remote control.
+		k = ''
+		if self.irrc_present:
+			try:
+				rrdy, wrdy, xrdy = select.select([self.irrc], [], [], 0)
+				if rrdy:
+					q = self.irrc.read(16)
+					k = irrc_map[q]
+			except KeyError:
+				print 'Unknown keycode'
+			except IOError:
+				self.irrc_present = False
+				try:
+					self.irrc.close()
+				except:
+					pass
+		return k
