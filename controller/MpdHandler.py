@@ -90,3 +90,29 @@ class MpdHandler:
 					self.mpdConnected = False
 			return True
 		return False
+
+	# Timer handler - nothing to do
+	def Timer(self):
+		return False
+
+	def Status(self):
+		s = {}
+		if not self.mpdConnected:
+			self.MpdConnect()
+		if self.mpdConnected:
+			try:
+				s = self.mpdc.status()
+			except:
+				pass
+		return s
+
+	def CurrentSong(self):
+		s = {}
+		if not self.mpdConnected:
+			self.MpdConnect()
+		if self.mpdConnected:
+			try:
+				s = self.mpdc.currentsong()
+			except:
+				pass
+		return s

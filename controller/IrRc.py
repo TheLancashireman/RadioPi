@@ -64,9 +64,10 @@ class IrRc:
 			except:
 				self.irrc_present = False
 
-	def Scan(self):
+	def Timer(self):					# Called infrequently to update status.
 		if not self.irrc_present:
 			self.Open()
+		return False
 
 	def GetEvent(self):					# Called frequently to read keys from remote control.
 		k = ''
