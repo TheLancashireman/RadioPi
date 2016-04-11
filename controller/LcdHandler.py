@@ -6,6 +6,7 @@
 
 import serial
 from MpdHandler import MpdHandler
+from MenuHandler import MenuHandler
 
 # LCD config
 lcd_dev = '/dev/ttyUSB0'
@@ -27,19 +28,10 @@ mode_Startup = 2
 mode_Home = 3
 mode_MainMenu = 4
 
-main_menu = [
-	"Clear playlist",
-	"Add tracks",
-	"Manage playlist",
-	"MPD options",
-	"Foo",
-	"Bar",
-	"Quxx"
-]
-
 class LcdHandler:
 	def __init__(self, mpd):
 		self.mpd = mpd
+		self.menuhandler = MenuHandler(self, mpd)
 		self.mode = mode_Disconnected			# Current mode
 		self.vol = -1							# State of info on screen. Only update if changed.
 		self.time = -1
@@ -106,7 +98,7 @@ class LcdHandler:
 		if self.mode == mode_Home:				# On home screen, 'menu' enters menu.
 			if evt == 'menu':
 				self.mode = mode_MainMenu
-				self.menu_handler[mode_MainMenu].Enter(mode_MainMenu)
+				self.menuhandler[mode_MainMenu].Enter(mode_MainMenu)
 				return True
 			return False						# Ignore everything else on home screen.
 
@@ -115,7 +107,7 @@ class LcdHandler:
 			self.force = True
 			return True
 
-		self.mode = menu_handler[self.mode].Event(self.mode, evt)
+		self.mode = menuhandler[self.mode].Event(self.mode, evt)
 		
 		return False
 
