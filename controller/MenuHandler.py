@@ -4,22 +4,39 @@
 #
 # (c) David Haworth
 
+from MainMenu import MainMenu
+
 class MenuHandler:
-	def __init__(self, lcd, mpd):
-		self.lcd = lcd				# Display handler
+	def __init__(self, mpd, lcd):
 		self.mpd = mpd				# MPD handler
-		self.menu = MainMenu		# Current menu
-		self.item = 0				# Item where the pointer is.
+		self.lcd = lcd				# Display handler
+		self.menu = MainMenu(self)	#
+		self.ptrpos = 0				# Item where the pointer is.
 		self.top = 0				# Item at top of screen.
 
-	def Enter(self, mode):
-		self.menu = MainMenu
-		self.item = 0
+	def Enter(self):
+		self.menu = MainMenu(self)
+		self.ptrpos = 0
 		self.top = 0
-		return mode
+		self.Show()
 
-	def Event(self, mode, evt):
-		return mode
+	def Event(self, evt):
+		return False
+
+	def Show(self):
+		nrows = self.lcd.GetNRows()
+		mnu = self.menu
+		j = self.top
+		for i in range(nrows):
+			if i == 0:
+				self.lcd.HomeAndClear()
+			else:
+				self.lcd.NewLine()
+			self.lcd.Write(' ' + mnu.Item(j))
+			j += 1
+		if self.ptrpos >= self.top and self.ptrpos < (self.top + nrows):
+			line = self.ptrpos - self.top + 1
+			self.lcd.Write(self.lcd.GoStr(line,1)+'\x7e\r')
 
 	def ClearPlaylist(self):
 		print 'MenuHandler.ClearPlaylist'
@@ -48,25 +65,3 @@ class MenuHandler:
 	def Foo(self):
 		print 'MenuHandler.Foo'
 		return 0
-
-class MainMenu:
-	def __init__(self, mh):
-		self.items = [
-			'Clear playlist',
-			'Add tracks',
-			'Manage playlist',
-			'Mount external',
-			'Umount external',
-			'MPD options',
-			'Foo'
-		]
-		self.actions = [
-			mh.ClearPlaylist,
-			mh.AddTracks,
-			mh.ManagePlaylist,
-			mh.MountExternal,
-			mh.UmountExternal,
-			mh.MpdOptions,
-			mh.Foo
-		]
-			

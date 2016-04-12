@@ -31,7 +31,7 @@ mode_MainMenu = 4
 class LcdHandler:
 	def __init__(self, mpd):
 		self.mpd = mpd
-		self.menuhandler = MenuHandler(self, mpd)
+		self.menuhandler = MenuHandler(mpd, self)
 		self.mode = mode_Disconnected			# Current mode
 		self.vol = -1							# State of info on screen. Only update if changed.
 		self.time = -1
@@ -98,7 +98,7 @@ class LcdHandler:
 		if self.mode == mode_Home:				# On home screen, 'menu' enters menu.
 			if evt == 'menu':
 				self.mode = mode_MainMenu
-				self.menuhandler[mode_MainMenu].Enter(mode_MainMenu)
+				self.menuhandler.Enter()
 				return True
 			return False						# Ignore everything else on home screen.
 
@@ -107,9 +107,7 @@ class LcdHandler:
 			self.force = True
 			return True
 
-		self.mode = menuhandler[self.mode].Event(self.mode, evt)
-		
-		return False
+		return self.menuhandler.Event(evt)
 
 #===========================================================
 # StartupScreen() - display startup screen
@@ -222,3 +220,18 @@ class LcdHandler:
 			self.lcd.write(s_vol)
 
 		self.force = False
+
+	def GetNRows(self):
+		return lcd_nrows
+
+	def HomeAndClear(self):
+		self.lcd.write('\f')
+
+	def NewLine(self):
+		self.lcd.write('\r\n')
+
+	def Write(self, str):
+		self.lcd.write(str)
+
+	def GoStr(self, row, col):
+		return '\033[' + str(row) + ';' + str(col) + 'H'
