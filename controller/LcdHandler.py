@@ -84,6 +84,7 @@ class LcdHandler:
 		else:									# After some inactivity, revert to home screen.
 			self.count -= 1
 			if self.count <= 0:
+				self.count = 0
 				self.mode = mode_Home
 				self.force = True
 		return False
@@ -95,6 +96,7 @@ class LcdHandler:
 		if self.mode < mode_Home:				# Ignore events during start sequence.
 			return False
 
+		self.count = 30							# Restart the inactivity timer
 		if self.mode == mode_Home:				# On home screen, 'menu' enters menu.
 			if evt == 'menu':
 				self.mode = mode_MainMenu
@@ -103,6 +105,7 @@ class LcdHandler:
 			return False						# Ignore everything else on home screen.
 
 		if evt == 'home':						# Anywhere in the menus, 'home' exits back to the home screen
+			self.menuhandler.Event(evt)
 			self.mode = mode_Home
 			self.force = True
 			return True

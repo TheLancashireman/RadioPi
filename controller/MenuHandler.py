@@ -5,6 +5,7 @@
 # (c) David Haworth
 
 from MainMenu import MainMenu
+from Browser import Browser
 
 class MenuHandler:
 	def __init__(self, mpd, lcd):
@@ -13,52 +14,37 @@ class MenuHandler:
 		self.menu = None
 		self.menustack = []
 
+	# Enter the menu system
 	def Enter(self):
-		self.menu = MainMenu(self)
-		self.Show()
+		self.menustack = []							# Clear out existing menus (if any)
+		self.menu = MainMenu(self, self.lcd)		# Create the main menu.
+		self.menu.Show()
+
+	# Enter the music browser at the specified place.
+	def EnterBrowser(self, dir):
+		self.menustack.append(self.menu)			# Push current menu.
+		self.menu = Browser(self, self.lcd, dir)	# Create a browser.
+		self.menu.Show()
+
+	# Go back up a level.
+	def Back(self):
+		self.menu = self.menustack.pop()
+		self.menu.Show()
 
 	def Event(self, evt):
-		return False
-
-	def Show(self):
-		nrows = self.lcd.GetNRows()
-		mnu = self.menu
-		j = mnu.top
-		for i in range(nrows):
-			if i == 0:
-				self.lcd.HomeAndClear()
-			else:
-				self.lcd.NewLine()
-			self.lcd.Write(' ' + mnu.things[j].text)
-			j += 1
-		if mnu.ptrpos >= mnu.top and mnu.ptrpos < (mnu.top + nrows):
-			line = mnu.ptrpos - mnu.top + 1
-			self.lcd.Write(self.lcd.GoStr(line,1)+'\x7e\r')
-
-	def ClearPlaylist(self):
-		print 'MenuHandler.ClearPlaylist'
-		mpd.Clear()
-
-	def AddTracks(self):
-		print 'MenuHandler.AddTracks'
-		return 0
-
-	def ManagePlaylist(self):
-		print 'MenuHandler.ManagePlaylist'
-		return 0
-
-	def MountExternal(self):
-		print 'MenuHandler.MountExternal'
-		return 0
-
-	def UmountExternal(self):
-		print 'MenuHandler.UmountExternal'
-		return 0
-
-	def MpdOptions(self):
-		print 'MenuHandler.MpdOptions'
-		return 0
-
-	def Foo(self):
-		print 'MenuHandler.Foo'
-		return 0
+		result = False
+		if evt == 'home':
+			self.menu = None
+			self.menustack = []
+			result = True
+		elif evt == 'back' or evt == 'left':
+			self.Back()
+			result = True
+		elif evt == 'up':
+			self.menu.PtrUp()
+			result = True
+		elif evt == 'down':
+			self.menu.PtrDown()
+			result = True
+		else:
+			result = self.menu.Event(evt)

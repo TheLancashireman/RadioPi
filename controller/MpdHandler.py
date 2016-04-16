@@ -25,9 +25,9 @@ class MpdHandler:
 
 	def MpdConnect(self):
 		try:						# Try to connect
-			self.mpdc.timeout = 10
+			self.mpdc.timeout = 100
 			self.mpdc.idletimeout = None
-			self.mpdc.connect("localhost", 6600)
+			self.mpdc.connect('/run/mpd/socket', 6600)
 			self.mpdConnected = True
 		except mpd.ConnectionError:
 			self.mpdConnected = False
@@ -77,6 +77,9 @@ class MpdHandler:
 		s = self.mpdc.status()
 		if s['state'] != 'stop':
 			self.mpdc.seekcur('+10')
+
+	def Add(self, ff):
+		self.mpdc.add(ff)
 
 	# Event handler
 	def Event(self, evt):
