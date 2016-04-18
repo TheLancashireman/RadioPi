@@ -4,10 +4,15 @@
 #
 # (c) David Haworth
 from Menu import Menu, MenuThing
+from Config import Config
+import os
 
 class MainMenu(Menu):
 	def __init__(self, mh, lcd):
 		Menu.__init__(self, mh, lcd)
+		cfg = Config()
+		self.music_dir = cfg.music_dir
+		self.ext_mount = os.path.join(self.music_dir, cfg.music_ext)
 		self.things.append(MenuThing('Clear playlist',	self.ClearPlaylist,		''))
 		self.things.append(MenuThing('Add to playlist',	self.EnterBrowser,		''))
 		self.things.append(MenuThing('Manage playlist',	self.ManagePlaylist,	''))
@@ -17,8 +22,9 @@ class MainMenu(Menu):
 
 	def ClearPlaylist(self, mt, evt):
 		if evt == 'ok':
-			print "MainMenu.ClearPlaylist()"
+			print "MainMenu.ClearPlaylist()"		# DBG
 			self.mh.mpd.mpdc.clear()
+			self.Ack()
 			return True
 		return False
 

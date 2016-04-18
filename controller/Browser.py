@@ -50,6 +50,7 @@ class Browser(Menu):
 				ff = os.path.join(dir, f)
 				if self.IsPlayable(ff):
 					self.mh.mpd.Add('file://'+ff)
+			self.Ack()
 			return True
 		return False
 
@@ -60,9 +61,9 @@ class Browser(Menu):
 		return False
 
 	def DirAction(self, mt, evt):
-		if evt == 'ok':
-			return self.AddAll(mt, evt)
-		elif evt == 'right':
+		if evt == 'red':
+			return self.AddAll(mt, 'ok')
+		elif evt == 'ok' or evt == 'right':
 			self.mh.EnterBrowser(mt.data)
 			return True
 		return False
@@ -70,5 +71,6 @@ class Browser(Menu):
 	def FileAction(self, mt, evt):
 		if evt == 'ok':
 			self.mh.mpd.Add('file://'+mt.data)
+			self.Ack()
 			return True
 		return False

@@ -3,6 +3,7 @@
 # Menu.py - an abstract menu with things on it
 #
 # (c) David Haworth
+from Config import Config
 
 # MenuThing.py - a thing on a menu
 #
@@ -17,9 +18,11 @@ class MenuThing:
 
 class Menu:
 	def __init__(self, mh, lcd):
+		cfg = Config()
 		self.mh = mh
 		self.lcd = lcd
-		self.pointer = '\x7e'
+		self.cursor = cfg.menu_cursor
+		self.ack_cursor = cfg.ack_cursor
 		self.top = 0		# First visible thing
 		self.current = 0	# Current position of pointer
 		self.things = []
@@ -37,7 +40,7 @@ class Menu:
 			j += 1
 		if self.current >= self.top and self.current < (self.top + nrows):
 			l = self.current - self.top + 1
-			self.lcd.Write(self.lcd.GoStr(l, 1) + self.pointer + '\r')
+			self.lcd.Write(self.lcd.GoStr(l, 1) + self.cursor + '\r')
 
 	def PtrUp(self):
 		if self.current > 0:
@@ -47,7 +50,7 @@ class Menu:
 				self.Show()
 			else:
 				l = self.current - self.top + 1
-				self.lcd.Write('\r ' + self.lcd.GoStr(l, 1) + self.pointer + '\r')
+				self.lcd.Write('\r ' + self.lcd.GoStr(l, 1) + self.cursor + '\r')
 
 	def PtrDown(self):
 		max = len(self.things)-1
@@ -55,9 +58,9 @@ class Menu:
 			print 'PtrDown ', max, self.current
 			self.current += 1
 			if self.current < self.top+self.lcd.GetNRows():
-				self.lcd.Write('\r \r\n' + self.pointer + '\r')
+				self.lcd.Write('\r \r\n' + self.cursor + '\r')
 			else:
-				self.lcd.Write('\r \r\n' + self.pointer + self.things[self.current].text + '\r')
+				self.lcd.Write('\r \r\n' + self.cursor + self.things[self.current].text + '\r')
 				self.top += 1
 
 	def Goto(self, tenth):
@@ -66,6 +69,9 @@ class Menu:
 		if self.top < 0:
 			self.top = 0
 		self.Show()
+
+	def Ack(self):
+		self.lcd.Write('\r' + self.ack_cursor + '\r')
 
 	def Event(self, evt):
 		r = True
