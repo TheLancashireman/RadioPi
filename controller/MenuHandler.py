@@ -6,6 +6,7 @@
 
 from MainMenu import MainMenu
 from Browser import Browser
+from MountMenu import MountMenu
 
 class MenuHandler:
 	def __init__(self, mpd, lcd):
@@ -26,10 +27,19 @@ class MenuHandler:
 		self.menu = Browser(self, self.lcd, dir)	# Create a browser.
 		self.menu.Show()
 
+	# Enter the mount menu.
+	def EnterMountMenu(self):
+		self.menustack.append(self.menu)			# Push current menu.
+		self.menu = MountMenu(self, self.lcd)		# Create the menu.
+		self.menu.Show()
+
 	# Go back up a level.
 	def Back(self):
-		self.menu = self.menustack.pop()
-		self.menu.Show()
+		try:
+			self.menu = self.menustack.pop()
+			self.menu.Show()
+		except:
+			pass
 
 	def Event(self, evt):
 		result = False

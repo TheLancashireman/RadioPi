@@ -31,7 +31,7 @@ class MainMenu(Menu):
 	def EnterBrowser(self, mt, evt):
 		if evt == 'ok' or evt == 'right':
 			print "MainMenu.EnterBrowser()"
-			self.mh.EnterBrowser('/home/pi/Music')
+			self.mh.EnterBrowser(self.music_dir)
 			return True
 		return False
 
@@ -40,11 +40,24 @@ class MainMenu(Menu):
 		return False
 
 	def MountExternal(self, mt, evt):
-		print "MainMenu.MountExternal()"
+		if evt == 'ok':
+			print "MainMenu.MountExternal()"
+			self.mh.EnterMountMenu()
+			return True
 		return False
 
 	def UmountExternal(self, mt, evt):
-		print "MainMenu.UMountExternal()"
+		if evt == 'ok':
+			print "MainMenu.UMountExternal()"
+			if os.path.isfile(os.path.join(self.ext_mount, '___NOT_MOUNTED___')):
+				self.Ack()
+			else:
+				e = os.system('sudo umount ' + self.ext_mount)
+				if e == 0:
+					self.Ack()
+				else:
+					print 'Failed to umount ' + self.ext_mount
+			return True
 		return False
 
 	def MpdOptions(self, mt, evt):
