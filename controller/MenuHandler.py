@@ -35,11 +35,12 @@ class MenuHandler:
 
 	# Go back up a level.
 	def Back(self):
-		try:
+		if len(self.menustack) == 0:
+			self.menu = None
+			self.lcd.ModeHome()
+		else:
 			self.menu = self.menustack.pop()
 			self.menu.Show()
-		except:
-			pass
 
 	def Event(self, evt):
 		result = False

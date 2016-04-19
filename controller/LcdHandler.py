@@ -26,7 +26,7 @@ mode_Disconnected = 0
 mode_StartupWait = 1
 mode_Startup = 2
 mode_Home = 3
-mode_MainMenu = 4
+mode_Menu = 4
 
 class LcdHandler:
 	def __init__(self, mpd):
@@ -99,7 +99,7 @@ class LcdHandler:
 		self.count = 30							# Restart the inactivity timer
 		if self.mode == mode_Home:				# On home screen, 'menu' enters menu.
 			if evt == 'menu':
-				self.mode = mode_MainMenu
+				self.mode = mode_Menu
 				self.menuhandler.Enter()
 				return True
 			return False						# Ignore everything else on home screen.
@@ -126,6 +126,15 @@ class LcdHandler:
 			self.lcd.write("  waiting for mpd")
 	
 		self.force = False
+
+#===========================================================
+# ModeHome() - switch to 'home' mode (leave menu)
+#===========================================================
+
+	def ModeHome(self):
+		self.mode = mode_Home
+		self.force = True
+		self.HomeScreen()
 
 #===========================================================
 # HomeScreen() - read mpd status and display it
