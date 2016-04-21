@@ -19,6 +19,7 @@ class MainMenu(Menu):
 		self.things.append(MenuThing('Mount external',	self.MountExternal,		''))
 		self.things.append(MenuThing('Umount external',	self.UmountExternal,	''))
 		self.things.append(MenuThing('MPD options',		self.MpdOptions,		''))
+		self.things.append(MenuThing('Test',			self.Test,				''))
 
 	def ClearPlaylist(self, mt, evt):
 		if evt == 'ok':
@@ -62,4 +63,18 @@ class MainMenu(Menu):
 
 	def MpdOptions(self, mt, evt):
 		print "MainMenu.MpdOptions()"
+		return False
+
+	def Test(self, mt, evt):
+		if evt == 'ok':
+			print "MainMenu.Test()"
+			self.mh.AskYesNo(['Really?'])
+			return True
+		if evt == 'ans.yes':
+			print "MainMenu.Test() " + evt
+			self.Ack()
+			return True
+		if evt == 'ans.no':
+			print "MainMenu.Test() " + evt
+			return True
 		return False

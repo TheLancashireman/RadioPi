@@ -7,6 +7,8 @@
 from MainMenu import MainMenu
 from Browser import Browser
 from MountMenu import MountMenu
+from MessageScreen import MessageScreen
+from AskYesNo import AskYesNo
 
 class MenuHandler:
 	def __init__(self, mpd, lcd):
@@ -32,6 +34,28 @@ class MenuHandler:
 		self.menustack.append(self.menu)			# Push current menu.
 		self.menu = MountMenu(self, self.lcd)		# Create the menu.
 		self.menu.Show()
+
+	# Show a message.
+	def ShowMessage(self, m):
+		self.menustack.append(self.menu)				# Push current menu.
+		self.menu = MessageScreen(self, self.lcd, m)	# Create the message screen.
+		self.menu.Show()
+
+	# Ask a question
+	def AskYesNo(self, m):
+		self.menustack.append(self.menu)			# Push current menu.
+		self.menu = AskYesNo(self, self.lcd, m)		# Create the yes/no screen.
+		self.menu.Show()
+
+	# Receive the answer from AskYesNo
+	def Answer(self, ans):
+		if len(self.menustack) == 0:
+			self.menu = None
+			self.lcd.ModeHome()
+		else:
+			self.menu = self.menustack.pop()
+			self.menu.Event(ans)
+			self.menu.Show()
 
 	# Go back up a level.
 	def Back(self):

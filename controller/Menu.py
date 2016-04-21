@@ -23,8 +23,9 @@ class Menu:
 		self.lcd = lcd
 		self.cursor = cfg.menu_cursor
 		self.ack_cursor = cfg.ack_cursor
-		self.top = 0		# First visible thing
-		self.current = 0	# Current position of pointer
+		self.top = 0			# First visible thing
+		self.current = 0		# Current position of pointer
+		self.min_current = 0	# Lowest index of pointer - nonzero for dialogs.
 		self.things = []
 
 	def Show(self):
@@ -43,7 +44,7 @@ class Menu:
 			self.lcd.Write(self.lcd.GoStr(l, 1) + self.cursor + '\r')
 
 	def PtrUp(self):
-		if self.current > 0:
+		if self.current > self.min_current:
 			self.current -= 1
 			if self.current < self.top:
 				self.top = self.current
