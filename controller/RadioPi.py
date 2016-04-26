@@ -5,12 +5,12 @@
 # (c) David Haworth
 
 from MpdHandler import MpdHandler
-from LcdHandler import LcdHandler
+from UiHandler import UiHandler
 from IrRc import IrRc
 import time
 
 handler = [ MpdHandler() ]
-handler.append(LcdHandler(handler[0]))
+handler.append(UiHandler(handler[0]))
 
 source = [ IrRc() ]
 
