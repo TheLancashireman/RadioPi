@@ -7,7 +7,7 @@
 import serial
 
 # LCD config
-lcd_dev		= '/dev/ttyUSB0'
+lcd_dev		= '/dev/ttyUSB'
 lcd_baud	= 9600
 lcd_nrows	= 4
 lcd_ncols	= 20
@@ -25,11 +25,13 @@ class LcdHandler:
 # ToDo: what if the device connects on ttyUSB1...?
 #===========================================================
 	def Open(self):
-		try:
-			self.lcd = serial.Serial(lcd_dev, lcd_baud)
-			self.connected = True
-		except:
-			self.connected = False
+		for n in range(9):
+			try:
+				self.lcd = serial.Serial(lcd_dev+str(n), lcd_baud)
+				self.connected = True
+				return self.connected
+			except:
+				self.connected = False
 		return self.connected
 
 #===========================================================
