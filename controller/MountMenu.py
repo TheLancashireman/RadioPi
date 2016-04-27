@@ -10,8 +10,8 @@ import os
 import stat
 
 class MountMenu(Menu):
-	def __init__(self, mh, lcd):
-		Menu.__init__(self, mh, lcd)
+	def __init__(self, ui, lcd):
+		Menu.__init__(self, ui, lcd)
 		self.things.append(MenuThing('Back',	self.Back,		''))
 		devdir = '/dev'
 
@@ -26,7 +26,7 @@ class MountMenu(Menu):
 
 	def Back(self, mt, evt):
 		if evt == 'ok':
-			self.mh.Back()
+			self.ui.Back()
 			return True
 		return False
 

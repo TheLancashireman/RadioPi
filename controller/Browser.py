@@ -8,8 +8,8 @@ from Menu import Menu, MenuThing
 import os
 
 class Browser(Menu):
-	def __init__(self, mh, lcd, dir):
-		Menu.__init__(self, mh, lcd)
+	def __init__(self, ui, lcd, dir):
+		Menu.__init__(self, ui, lcd)
 		self.things.append(MenuThing('Add all',	self.AddAll,	dir))	# Might get removed later
 		self.things.append(MenuThing('Back',	self.Back,		''))
 
@@ -49,14 +49,14 @@ class Browser(Menu):
 			for f in files:
 				ff = os.path.join(dir, f)
 				if self.IsPlayable(ff):
-					self.mh.mpd.Add('file://'+ff)
+					self.ui.mpd.Add('file://'+ff)
 			self.Ack()
 			return True
 		return False
 
 	def Back(self, mt, evt):
 		if evt == 'ok':
-			self.mh.Back()
+			self.ui.Back()
 			return True
 		return False
 
@@ -64,13 +64,13 @@ class Browser(Menu):
 		if evt == 'red':
 			return self.AddAll(mt, 'ok')
 		elif evt == 'ok' or evt == 'right':
-			self.mh.EnterBrowser(mt.data)
+			self.ui.EnterBrowser(mt.data)
 			return True
 		return False
 
 	def FileAction(self, mt, evt):
 		if evt == 'ok':
-			self.mh.mpd.Add('file://'+mt.data)
+			self.ui.mpd.Add('file://'+mt.data)
 			self.Ack()
 			return True
 		return False

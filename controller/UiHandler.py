@@ -82,9 +82,9 @@ class UiHandler:
 #===========================================================
 # Show a message.
 #===========================================================
-	def ShowMessage(self, m):
-		self.menustack.append(self.menu)				# Push current menu.
-		self.menu = MessageScreen(self, self.lcd, m)	# Create the message screen.
+	def ShowMessage(self, m, ack):
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = MessageScreen(self, self.lcd, m, ack)	# Create the message screen.
 		self.menu.Show()
 
 #===========================================================

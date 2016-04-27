@@ -17,9 +17,9 @@ class MenuThing:
 		self.data = d
 
 class Menu:
-	def __init__(self, mh, lcd):
+	def __init__(self, ui, lcd):
 		cfg = Config()
-		self.mh = mh
+		self.ui = ui
 		self.lcd = lcd
 		self.cursor = cfg.menu_cursor
 		self.ack_cursor = cfg.ack_cursor

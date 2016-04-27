@@ -7,8 +7,8 @@
 from Menu import Menu, MenuThing
 
 class AskYesNo(Menu):
-	def __init__(self, mh, lcd, m):
-		Menu.__init__(self, mh, lcd)
+	def __init__(self, ui, lcd, m):
+		Menu.__init__(self, ui, lcd)
 
 		self.things.append(MenuThing(m[0],	self.Nix,	''))
 
@@ -28,6 +28,6 @@ class AskYesNo(Menu):
 
 	def Answer(self, mt, evt):
 		if evt == 'ok':
-			self.mh.Answer(mt.data)
+			self.ui.Answer(mt.data)
 			return True
 		return False
