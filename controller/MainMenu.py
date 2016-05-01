@@ -15,12 +15,13 @@ class MainMenu(Menu):
 		self.ext_mount = os.path.join(self.music_dir, cfg.music_ext)
 		self.things.append(MenuThing('Clear playlist',	self.ClearPlaylist,		''))
 		self.things.append(MenuThing('Add to playlist',	self.EnterBrowser,		''))
-		self.things.append(MenuThing('Manage playlist',	self.ManagePlaylist,	''))
 		self.things.append(MenuThing('Mount external',	self.MountExternal,		''))
 		self.things.append(MenuThing('Umount external',	self.UmountExternal,	''))
-		self.things.append(MenuThing('MPD options',		self.MpdOptions,		''))
-		self.things.append(MenuThing('Shut down',		self.Shutdown,			''))
+		self.things.append(MenuThing('Exit & restart',	self.Shutdown,			'e'))
 		self.things.append(MenuThing('Reboot',			self.Shutdown,			'r'))
+		self.things.append(MenuThing('Shut down',		self.Shutdown,			''))
+		self.things.append(MenuThing('MPD options',		self.MpdOptions,		''))
+		self.things.append(MenuThing('Manage playlist',	self.ManagePlaylist,	''))
 		self.things.append(MenuThing('Test',			self.Test,				''))
 
 	def ClearPlaylist(self, mt, evt):
@@ -86,14 +87,19 @@ class MainMenu(Menu):
 	def Shutdown(self, mt, evt):
 		if evt == 'ok':
 			print "MainMenu.Shutdown()"
-			if mt.data == 'r':
+			if mt.data == 'e':
+				self.ui.AskYesNo(['Really exit?'])
+			elif mt.data == 'r':
 				self.ui.AskYesNo(['Really reboot?'])
 			else:
 				self.ui.AskYesNo(['Really shut down?'])
 			return True
 		if evt == 'ans.yes':
 			print "MainMenu.Shutdown() " + evt
-			if mt.data == 'r':
+			if mt.data == 'e':
+				self.ui.ShowMessage(['Restarting RadioPi', 'Please wait...'], '')
+				exit(0)
+			elif mt.data == 'r':
 				self.ui.ShowMessage(['Rebooting', 'Please wait...'], '')
 				os.system('sudo reboot')
 			else:

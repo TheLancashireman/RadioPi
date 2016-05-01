@@ -14,5 +14,6 @@ while true; do
 		mv radiopi.log radiopi.log.o
 	fi
 	./RadioPi.py > radiopi.log 2>&1
+	sleep 1
 done
 
