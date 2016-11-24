@@ -58,27 +58,22 @@ def process_request():
 
 	query_string = os.environ["QUERY_STRING"]
 
+#	try:
 	if query_string == "":
 		front_page()
 	else:
 		query_list = query_string.split('&')
-		command = query_list[0]
-		if command == "play":
+		if query_list[0] == "home":
 			front_page()
-		elif command == "pause":
-			front_page()
-		elif command == "stop":
-			front_page()
-		elif command == "next":
-			front_page()
-		elif command == "prev":
-			front_page()
-		elif command == "clear":
-			front_page()
-		elif command == "browse":
-			list_dir(query_list[1:])
+		if query_list[0] == "browse":
+			if len(query_list) > 1:
+				list_dir(query_list[1])
+			else:
+				list_dir("")
 		else:
 			error_page(1002, "Unknown command "+command+"\n", webradiopi)
+#	except:
+#		error_page(2006, "Server error - unhandled exception processing  \""+query_string+"\".", "")
 
 ###
 # front_page() - print the "home" page
@@ -97,55 +92,65 @@ def front_page():
 	print_page("WebRadioPi", body, "webradiopi")
 
 ###
-# list_dir() - create a page listing the contents of a specified directory
+# list_dir() - create a page listing the contents of a specified directory relative to music_dir
 ###
-def list_dir(path_list):
+def list_dir(rel_path):
 	global music_dir
+	parent = ""
 	body = ""
 	up_link = ""
 	addall_link = ""
 	directories = []
 	tracks = []
 
-	if len(path_list) > 0:
-		dir_title = " - ".join(path_list[len(path_list)-2:])
-	else:
-		dir_title = "=== Top ==="
-	path = music_dir +"/"+"/".join(path_list)
+	path = music_dir + "/" + rel_path
 
-	files = os.listdir(path)
-	n_tracks = 0
-	n_dirs = 0
-	for f in sorted(files):
-
-		full = os.path.join(path, f)
-
-		if os.path.isdir(full):		# Follows symlinks
-			directories.append(f)
-			n_dirs += 1
-		elif os.path.isfile(full):	# Follows symlinks
-			if is_track(f):
-				tracks.append(f)
-				n_tracks += 1
-		# Ignore all other entries
-	if n_tracks > 0:
-		addall_url = "#"	# fixme
-		addall_link = '<a href="'+addall_url+'"><img class="navbutton" src="/images/btn-addfolder.jpg"/></a>'
-
-	if len(path_list) > 0:
-		if len(path_list) > 1:
-			up_url = script_name+"?browse&"+"&".join(path_list[0:len(path_list)-1])
+	if os.path.isdir(path):
+		if rel_path == "":
+			dir_title = "=== Top ==="
 		else:
-			up_url = script_name+"?browse"
-		up_link = '<a href="'+up_url+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
-		browse_url = script_name+"?browse&"+"&".join(path_list)
-		add_url = script_name+"?add&"+"&".join(path_list)
-	else:
-		up_link = '<a href="'+script_name+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
-		browse_url = script_name+"?browse"
-		add_url = script_name+"?add"
+			(parent, t2) = os.path.split(rel_path)
+			if t2 == "":
+				# Ended in separator
+				(parent, t2) = os.path.split(parent)
+			if parent == "":
+				dir_title = t2
+			else:
+				(h,t1) = os.path.split(parent)
+				dir_title = t1 + " :: " + t2
 
-	body += """
+		files = os.listdir(path)
+		n_tracks = 0
+		n_dirs = 0
+		for f in sorted(files):
+			full = os.path.join(path, f)
+
+			if os.path.isdir(full):		# Follows symlinks
+				directories.append(f)
+				n_dirs += 1
+			elif os.path.isfile(full):	# Follows symlinks
+				if is_track(f):
+					tracks.append(f)
+					n_tracks += 1
+			# Ignore all other entries
+
+		if n_tracks > 0:
+			addall_url = "#"	# fixme
+			addall_link = '<a href="'+addall_url+'"><img class="navbutton" src="/images/btn-addfolder.jpg"/></a>'
+
+		if rel_path == "":
+			up_link = '<a href="'+script_name+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+			browse_url = script_name+"?browse&"
+		else:
+			if parent == "":
+				up_url = script_name+"?browse"
+			else:
+				up_url = script_name+"?browse&"+parent
+			up_link = '<a href="'+up_url+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+			browse_url = script_name+"?browse&"+rel_path+"/"
+		add_url = "#"	# fixme
+
+		body += """
   <div>
    <table id="directorylisting">
     <tr>
@@ -159,33 +164,35 @@ def list_dir(path_list):
      <td><hr/></td>
     </tr>"""
 
-	if  n_tracks > 0:
-		for i in range(n_tracks):
-			add_link = '<a href="'+add_url+'&'+tracks[i]+'">+</a>'
-			body += """
+		if  n_tracks > 0:
+			for i in range(n_tracks):
+				add_link = '<a href="'+add_url+'/'+tracks[i]+'">+</a>'
+				body += """
     <tr>
      <td></td>
      <td>"""+add_link+"""</td>
      <td>"""+tracks[i]+"""</td>
     </tr>"""
 
-	if  n_dirs > 0:
-		for i in range(n_dirs):
-			browse_link = '<a href="'+browse_url+'&'+directories[i]+'">-&gt;</a>'
-			# fixme: conditional on having tracks in subdir
-			add_link = '<a href="'+add_url+'&'+directories[i]+'">+</a>'
-			body += """
+		if  n_dirs > 0:
+			for i in range(n_dirs):
+				browse_link = '<a href="'+browse_url+directories[i]+'">-&gt;</a>'
+				# fixme: conditional on having tracks in subdir
+				add_link = '<a href="'+add_url+directories[i]+'">+</a>'
+				body += """
     <tr>
      <td>"""+browse_link+"""</td>
      <td>"""+add_link+"""</td>
      <td>"""+directories[i]+"""</td>
     </tr>"""
 
-	body += """
+		body += """
    </table>
   </div>
 """
-	print_page("WebRadioPi", body, "webradiopi")
+		print_page("WebRadioPi", body, "webradiopi")
+	else:
+		error_page(1003, "Command error: "+rel_path+" does not exist.\n", webradiopi)
 
 ###
 # print_page() - prints the page; content type, doctype and the html head and body
