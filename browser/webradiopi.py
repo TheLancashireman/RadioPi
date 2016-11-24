@@ -3,6 +3,7 @@ import os
 
 music_dir = "/data/audio/jukebox"
 music_ext = set([".ogg", ".mp3", ".wav", ".flac"])
+script_name = ""
 
 ###
 # main() - top level function (gets called at the end)
@@ -16,6 +17,7 @@ def main():
 # verify_env() - sanity checks on the CGI environment
 ###
 def verify_env():
+	global script_name
 
 	# Make sure DOCUMENT_ROOT is set and specifies a directory
 	try:
@@ -54,7 +56,7 @@ def verify_env():
 def process_request():
 	global music_dir
 
-	query_string = os.environ["QUERY_STRING"].lower()
+	query_string = os.environ["QUERY_STRING"]
 
 	if query_string == "":
 		front_page()
@@ -73,8 +75,8 @@ def process_request():
 			front_page()
 		elif command == "clear":
 			front_page()
-		elif command == "add":
-			list_dir(music_dir)
+		elif command == "browse":
+			list_dir(query_list[1:])
 		else:
 			error_page(1002, "Unknown command "+command+"\n", webradiopi)
 
@@ -84,17 +86,10 @@ def process_request():
 def front_page():
 	body = """
  <div>
-  <ul id="controls">
-   <li><a href="webradiopi.py?play">Play</a></li>
-   <li><a href="webradiopi.py?pause">Pause</a></li>
-   <li><a href="webradiopi.py?stop">Stop</a></li>
-   <li><a href="webradiopi.py?next">Next</a></li>
-   <li><a href="webradiopi.py?prev">Prev</a></li>
-  </ul>
-  <h2>Playlist</h2>
+  <h2>RadioPi menu</h2>
   <ul id="playlistcontrols">
-   <li><a href="webradiopi.py?clear">Clear</a></li>
-   <li><a href="webradiopi.py?add">Add</a></li>
+   <li><a href="webradiopi.py?browse">Add to playlist</a></li>
+   <li><a href="webradiopi.py?clear">Clear playlist</a></li>
   </ul>
  </div>
 """
@@ -104,11 +99,19 @@ def front_page():
 ###
 # list_dir() - create a page listing the contents of a specified directory
 ###
-def list_dir(path):
+def list_dir(path_list):
+	global music_dir
 	body = ""
-
+	up_link = ""
+	addall_link = ""
 	directories = []
 	tracks = []
+
+	if len(path_list) > 0:
+		dir_title = " - ".join(path_list[len(path_list)-2:])
+	else:
+		dir_title = "=== Top ==="
+	path = music_dir +"/"+"/".join(path_list)
 
 	files = os.listdir(path)
 	n_tracks = 0
@@ -121,31 +124,66 @@ def list_dir(path):
 			directories.append(f)
 			n_dirs += 1
 		elif os.path.isfile(full):	# Follows symlinks
-			if istrack(f):
+			if is_track(f):
 				tracks.append(f)
 				n_tracks += 1
 		# Ignore all other entries
+	if n_tracks > 0:
+		addall_url = "#"	# fixme
+		addall_link = '<a href="'+addall_url+'"><img class="navbutton" src="/images/btn-addfolder.jpg"/></a>'
+
+	if len(path_list) > 0:
+		if len(path_list) > 1:
+			up_url = script_name+"?browse&"+"&".join(path_list[0:len(path_list)-1])
+		else:
+			up_url = script_name+"?browse"
+		up_link = '<a href="'+up_url+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+		browse_url = script_name+"?browse&"+"&".join(path_list)
+		add_url = script_name+"?add&"+"&".join(path_list)
+	else:
+		up_link = '<a href="'+script_name+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+		browse_url = script_name+"?browse"
+		add_url = script_name+"?add"
 
 	body += """
- <div>
-  <h2>"""+path+"""</h2>
-"""
+  <div>
+   <table id="directorylisting">
+    <tr>
+     <td>"""+up_link+"""</td>
+     <td>"""+addall_link+"""</td>
+     <td>"""+dir_title+"""</td>
+    </tr>
+    <tr>
+     <td></td>
+     <td></td>
+     <td><hr/></td>
+    </tr>"""
 
 	if  n_tracks > 0:
-		body += "  <ul>\n"
 		for i in range(n_tracks):
-			body += "   <li>"+tracks[i]+"</li>\n"
-		body += "  </ul>\n"
+			add_link = '<a href="'+add_url+'&'+tracks[i]+'">+</a>'
+			body += """
+    <tr>
+     <td></td>
+     <td>"""+add_link+"""</td>
+     <td>"""+tracks[i]+"""</td>
+    </tr>"""
+
 	if  n_dirs > 0:
-		if n_tracks > 0:
-			body += "  <hr/>\n"
-		body += "  <ul>\n"
 		for i in range(n_dirs):
-			body += "   <li>"+directories[i]+"</li>\n"
-		body += "  </ul>\n"
+			browse_link = '<a href="'+browse_url+'&'+directories[i]+'">-&gt;</a>'
+			# fixme: conditional on having tracks in subdir
+			add_link = '<a href="'+add_url+'&'+directories[i]+'">+</a>'
+			body += """
+    <tr>
+     <td>"""+browse_link+"""</td>
+     <td>"""+add_link+"""</td>
+     <td>"""+directories[i]+"""</td>
+    </tr>"""
 
 	body += """
- </div>
+   </table>
+  </div>
 """
 	print_page("WebRadioPi", body, "webradiopi")
 
@@ -172,6 +210,15 @@ def print_page(title, body_html, css):
  </head>
 
  <body>
+  <div class="player">
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-home.jpg" alt="home"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-begin.jpg" alt="begin"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-prev.jpg" alt="prev"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-toggle.jpg" alt="toggle"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-stop.jpg" alt="stop"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.jpg" alt="next"/></div>
+   <div class="clearall"/>
+  </div>
 """+body_html+"""
  </body>
 </html>
@@ -199,7 +246,7 @@ def error_page(errcode, errmsg, errinfo):
 ###
 def is_track(f):
 	global music_ext
-	(n,e) = os.path.split(f.lower())
+	(n,e) = os.path.splitext(f.lower())
 	return e in music_ext
 
 ###

@@ -13,3 +13,14 @@ Subversion installed. Repository on Lugh.
 
 Problem: default route not set up at start.
 
+
+Walking the tree:
+
+l = os.listdir(d)
+l.sort()
+m = menu(l)
+i = select index
+if os.path.isdir(l[i]):
+   d = os.path.join(d, l[i])
+else:
+   mpd.add(os.path.join(d, l[i])
