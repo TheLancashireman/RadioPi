@@ -103,7 +103,7 @@ def list_dir(rel_path):
 	directories = []
 	tracks = []
 
-	path = music_dir + "/" + rel_path
+	path = os.path.join(music_dir, rel_path)
 
 	if os.path.isdir(path):
 		if rel_path == "":
@@ -178,7 +178,10 @@ def list_dir(rel_path):
 			for i in range(n_dirs):
 				browse_link = '<a href="'+browse_url+directories[i]+'">-&gt;</a>'
 				# fixme: conditional on having tracks in subdir
-				add_link = '<a href="'+add_url+directories[i]+'">+</a>'
+				if has_tracks(os.path.join(path, directories[i])):
+					add_link = "<a href=\""+add_url+directories[i]+"\">+</a>"
+				else:
+					add_link = ""
 				body += """
     <tr>
      <td>"""+browse_link+"""</td>
@@ -192,7 +195,7 @@ def list_dir(rel_path):
 """
 		print_page("WebRadioPi", body, "webradiopi")
 	else:
-		error_page(1003, "Command error: "+rel_path+" does not exist.\n", webradiopi)
+		error_page(1003, "Command error: "+rel_path+" does not exist.\n", webradiopi)
 
 ###
 # print_page() - prints the page; content type, doctype and the html head and body
@@ -214,6 +217,7 @@ def print_page(title, body_html, css):
   <title>"""+title+"""</title>
 
   <link rel="stylesheet" type="text/css" href="/styles/"""+css+""".css"/>
+  <script src="/script/"+css+".js"></script>
  </head>
 
  <body>
@@ -255,6 +259,19 @@ def is_track(f):
 	global music_ext
 	(n,e) = os.path.splitext(f.lower())
 	return e in music_ext
+
+###
+# has_tracks() - return True if the directory contains one or more music files
+###
+def has_tracks(d):
+	if os.path.isdir(d):
+		files = os.listdir(d)
+		for f in files:
+			full = os.path.join(d, f)
+			if os.path.isfile(full):	# Follows symlinks
+				if is_track(f):
+					return True
+	return False
 
 ###
 # Do the stuff :-)
