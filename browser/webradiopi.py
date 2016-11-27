@@ -102,6 +102,11 @@ def list_dir(rel_path):
 	addall_link = ""
 	directories = []
 	tracks = []
+	btn_open = "<img class=\"navbutton\" src=\"/images/btn-open.svg\"/>"
+	btn_back = "<img class=\"navbutton\" src=\"/images/btn-back.svg\"/>"
+	btn_home = "<img class=\"navbutton\" src=\"/images/btn-home.svg\"/>"
+	add_cmd = "<img class=\"navbutton\" src=\"/images/btn-add.svg\" onclick=\"rp_add('"
+	add_cmd_end =  "')\" alt=\"Add\" />"
 
 	path = os.path.join(music_dir, rel_path)
 
@@ -135,20 +140,18 @@ def list_dir(rel_path):
 			# Ignore all other entries
 
 		if n_tracks > 0:
-			addall_url = "#"	# fixme
-			addall_link = '<a href="'+addall_url+'"><img class="navbutton" src="/images/btn-addfolder.jpg"/></a>'
+			addall_link = add_cmd + rel_path + add_cmd_end
 
 		if rel_path == "":
-			up_link = '<a href="'+script_name+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+			up_link = "<a href=\""+script_name+"\">" + btn_back + "</a>"
 			browse_url = script_name+"?browse&"
 		else:
 			if parent == "":
 				up_url = script_name+"?browse"
 			else:
 				up_url = script_name+"?browse&"+parent
-			up_link = '<a href="'+up_url+'"><img class="navbutton" src="/images/btn-upfolder.jpg"/></a>'
+			up_link = "<a href=\""+up_url+"\">" + btn_back + "</a>"
 			browse_url = script_name+"?browse&"+rel_path+"/"
-		add_url = "#"	# fixme
 
 		body += """
   <div>
@@ -166,7 +169,7 @@ def list_dir(rel_path):
 
 		if  n_tracks > 0:
 			for i in range(n_tracks):
-				add_link = '<a href="'+add_url+'/'+tracks[i]+'">+</a>'
+				add_link = add_cmd + os.path.join(rel_path, tracks[i]) + add_cmd_end
 				body += """
     <tr>
      <td></td>
@@ -176,10 +179,9 @@ def list_dir(rel_path):
 
 		if  n_dirs > 0:
 			for i in range(n_dirs):
-				browse_link = '<a href="'+browse_url+directories[i]+'">-&gt;</a>'
-				# fixme: conditional on having tracks in subdir
+				browse_link = "<a href=\""+browse_url+directories[i]+"\">" + btn_open + "</a>"
 				if has_tracks(os.path.join(path, directories[i])):
-					add_link = "<a href=\""+add_url+directories[i]+"\">+</a>"
+					add_link = add_cmd + os.path.join(rel_path, directories[i]) + add_cmd_end
 				else:
 					add_link = ""
 				body += """
@@ -217,17 +219,23 @@ def print_page(title, body_html, css):
   <title>"""+title+"""</title>
 
   <link rel="stylesheet" type="text/css" href="/styles/"""+css+""".css"/>
-  <script src="/script/"+css+".js"></script>
+  <script src="/script/"""+css+""".js"></script>
  </head>
 
  <body>
   <div class="player">
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-home.jpg" alt="home"/></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-begin.jpg" alt="begin"/></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-prev.jpg" alt="prev"/></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-toggle.jpg" alt="toggle"/></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-stop.jpg" alt="stop"/></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.jpg" alt="next"/></div>
+   <div class="playerbutton"><a href="/script/webradiopi.py"><img
+        class="playerbutton" src="/images/btn-home.svg" alt="home"/></a></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-begin.svg" alt="begin"
+        onclick="rp_cmd('begin')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-prev.svg" alt="prev"
+        onclick="rp_cmd('prev')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-stop.svg" alt="stop"
+        onclick="rp_cmd('stop')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-toggle.svg" alt="toggle"
+        onclick="rp_cmd('toggle')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.svg" alt="next"
+        onclick="rp_cmd('next')"/></div>
    <div class="clearall"/>
   </div>
 """+body_html+"""

@@ -24,6 +24,8 @@ div.playerbutton
 	width: 15%;
 	float: left;
 	margin: 0.5%
+	align: center;
+	text-align: center;
 }
 
 img.playerbutton

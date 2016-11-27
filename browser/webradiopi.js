@@ -3,10 +3,11 @@ var socket;
 window.onload = function() {
 
 	// Create a new WebSocket.
-	var hostname = 'localhost';
-	if (window.location.hostname != '') {
-		hostname = window.location.hostname;
-	}
+//	var hostname = 'localhost';
+//	if (window.location.hostname != '') {
+//		hostname = window.location.hostname;
+//	}
+	var hostname = 'radiopi';
 	socket = new WebSocket('ws://' + hostname + ':6502');
 
 	// Handle any errors that occur.
@@ -31,8 +32,20 @@ window.onload = function() {
 	};
 };
 
+// close the socket before leaving.
+// See https://stackoverflow.com/questions/4812686/closing-websocket-correctly-html5-javascript#481854
+window.onbeforeunload = function() {
+    socket.onclose = function () {}; // disable onclose handler first
+    socket.close()
+};
+
 // Performs add and addall
 rp_add = function(f) {
 	var message = 'add ' + f;
 	socket.send(message)
+}
+
+// Performs parameterless commands
+rp_cmd = function(f) {
+	socket.send(f)
 }
