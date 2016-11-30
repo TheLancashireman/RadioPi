@@ -2,7 +2,7 @@ body
 {
 	margin: 0;
 	padding: 0;
-	background: #c0c0c0;
+	background: #a0e0e0;
 	color: #0;
 	text-align: left;
 	font: normal 12pt Verdana;
@@ -17,15 +17,19 @@ div.clearall
 div.player
 {
 	align: center;
+	text-align: center;
+	margin: auto;
+	width: 99%;
 }
 
 div.playerbutton
 {
-	width: 15%;
+	width: 16.66%;
 	float: left;
-	margin: 0.5%
+	margin: 0;
 	align: center;
 	text-align: center;
+	cursor: pointer;
 }
 
 img.playerbutton
@@ -34,31 +38,42 @@ img.playerbutton
 	max-height: 100%;
 }
 
+div.directorylisting
+{
+}
+
+div.directoryentry
+{
+	width: 99%;
+	clear: both;
+	text-align: center;
+}
+
+div.directorybutton
+{
+	width: 10%;
+	float: left;
+	text-align: center;
+}
+
+div.directorytext
+{
+	width: 78%;
+	float: left;
+	align: left;
+	text-align: left;
+	padding-left: 5px;
+}
+
 img.navbutton
 {
-	width: 25px;
-	height: 25px;
+	max-width: 100%;
+	max-height: 100%;
+	cursor: pointer;
 }
 
-td,th
+img.greybutton
 {
-	padding-top: 2px;
-	padding-bottom: 2px;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-
-div#rest
-{
-	position: fixed;
-	width: 99%;
-	height: 90%;
-	align: center;
-}
-
-div#rest > iframe
-{
-	display: block;
-	width: 100%;
-	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
 }

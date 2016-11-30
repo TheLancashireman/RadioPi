@@ -1,7 +1,11 @@
 #!/usr/bin/python
 import os
+import urllib
 
-music_dir = "/data/audio/jukebox"
+
+music_dir = ""
+music_dir_radiopi = "/home/pi/Music"
+music_dir_boru = "/data/audio/jukebox"
 music_ext = set([".ogg", ".mp3", ".wav", ".flac"])
 script_name = ""
 
@@ -18,6 +22,9 @@ def main():
 ###
 def verify_env():
 	global script_name
+	global music_dir
+	global music_dir_radiopi
+	global music_dir_boru
 
 	# Make sure DOCUMENT_ROOT is set and specifies a directory
 	try:
@@ -45,10 +52,19 @@ def verify_env():
 		error_page(2004, "Server error - SCRIPT_NAME is not defined.", "")
 
 	# Make sure the query string is defined. Error page if not!
-	try:
-		query_string = os.environ["QUERY_STRING"]
-	except:
-		error_page(2005, "Server error - QUERY_STRING is not defined.", "")
+	# Update: lighttpd doesn't define this if there's no ?, so ignore and treat missing as blank later.
+#	try:
+#		query_string = os.environ["QUERY_STRING"]
+#	except:
+#		error_page(2005, "Server error - QUERY_STRING is not defined.", "")
+
+	if os.path.isdir(music_dir_radiopi):
+		music_dir = music_dir_radiopi
+	elif os.path.isdir(music_dir_boru):
+		music_dir = music_dir_boru
+	else:
+		error_page(2006, "Server error - music directory not found.", "")
+
 
 ###
 # process_request() - process the query, decide what to do
@@ -56,24 +72,33 @@ def verify_env():
 def process_request():
 	global music_dir
 
-	query_string = os.environ["QUERY_STRING"]
+	try:
+		query_string = urllib.unquote(os.environ["QUERY_STRING"])
+	except:
+		query_string = ""
 
-#	try:
-	if query_string == "":
-		front_page()
-	else:
-		query_list = query_string.split('&')
-		if query_list[0] == "home":
+#	if True:
+	try:
+		if query_string == "":
 			front_page()
-		if query_list[0] == "browse":
-			if len(query_list) > 1:
-				list_dir(query_list[1])
-			else:
-				list_dir("")
 		else:
-			error_page(1002, "Unknown command "+command+"\n", webradiopi)
-#	except:
-#		error_page(2006, "Server error - unhandled exception processing  \""+query_string+"\".", "")
+			query_list = query_string.split('&')
+			if query_list[0] == "home":
+				front_page()
+			elif query_list[0] == "clear":
+				front_page()
+			elif query_list[0] == "shutdown":
+				front_page()
+			elif query_list[0] == "browse":
+				if len(query_list) > 1:
+					list_dir(query_list[1])
+				else:
+					list_dir("")
+			else:
+				error_page(1002, "Unknown command "+command+"\n", webradiopi)
+#	else:
+	except:
+		error_page(2010, "Server error - unhandled exception processing  \""+query_string+"\".", "")
 
 ###
 # front_page() - print the "home" page
@@ -83,8 +108,9 @@ def front_page():
  <div>
   <h2>RadioPi menu</h2>
   <ul id="playlistcontrols">
-   <li><a href="webradiopi.py?browse">Add to playlist</a></li>
+   <li><a href="webradiopi.py?browse">Add tracks to playlist</a></li>
    <li><a href="webradiopi.py?clear">Clear playlist</a></li>
+   <li><a href="webradiopi.py?shutdown">Shut down RadioPi</a></li>
   </ul>
  </div>
 """
@@ -141,63 +167,60 @@ def list_dir(rel_path):
 
 		if n_tracks > 0:
 			addall_link = add_cmd + rel_path + add_cmd_end
+		else:
+			addall_link = "<img class=\"greybutton\" src=\"/images/btn-noadd.svg\"/>"
 
 		if rel_path == "":
-			up_link = "<a href=\""+script_name+"\">" + btn_back + "</a>"
-			browse_url = script_name+"?browse&"
+			up_link = "<a href=\"" + script_name + "\">" + btn_back + "</a>"
+			browse_url = script_name + "?browse&"
 		else:
 			if parent == "":
-				up_url = script_name+"?browse"
+				up_url = script_name + "?browse"
 			else:
-				up_url = script_name+"?browse&"+parent
-			up_link = "<a href=\""+up_url+"\">" + btn_back + "</a>"
-			browse_url = script_name+"?browse&"+rel_path+"/"
+				up_url = script_name+"?browse&" + urllib.quote(parent)
+			up_link = "<a href=\"" + up_url + "\">" + btn_back + "</a>"
+			browse_url = script_name + "?browse&" + urllib.quote(rel_path + "/")
 
 		body += """
-  <div>
-   <table id="directorylisting">
-    <tr>
-     <td>"""+up_link+"""</td>
-     <td>"""+addall_link+"""</td>
-     <td>"""+dir_title+"""</td>
-    </tr>
-    <tr>
-     <td></td>
-     <td></td>
-     <td><hr/></td>
-    </tr>"""
+  <div class="directorylisting">
+   <div class="directoryentry">
+    <div class="directorybutton">"""+up_link+"""</div>
+    <div class="directorybutton">"""+addall_link+"""</div>
+    <div class="directorytext">"""+dir_title+"""</div>
+   </div>
+   <div class="directoryentry"><hr/></div>
+"""
 
 		if  n_tracks > 0:
 			for i in range(n_tracks):
 				add_link = add_cmd + os.path.join(rel_path, tracks[i]) + add_cmd_end
 				body += """
-    <tr>
-     <td></td>
-     <td>"""+add_link+"""</td>
-     <td>"""+tracks[i]+"""</td>
-    </tr>"""
+   <div class="directoryentry">
+    <div class="directorybutton"><img class="greybutton" src="/images/btn-noopen.svg"/></div>
+    <div class="directorybutton">"""+add_link+"""</div>
+    <div class="directorytext">"""+tracks[i]+"""</div>
+   </div>"""
 
 		if  n_dirs > 0:
 			for i in range(n_dirs):
-				browse_link = "<a href=\""+browse_url+directories[i]+"\">" + btn_open + "</a>"
+				browse_link = "<a href=\"" + browse_url + urllib.quote(directories[i]) + "\">" + btn_open + "</a>"
 				if has_tracks(os.path.join(path, directories[i])):
 					add_link = add_cmd + os.path.join(rel_path, directories[i]) + add_cmd_end
 				else:
-					add_link = ""
+					add_link = "<img class=\"greybutton\" src=\"/images/btn-noadd.svg\"/>"
 				body += """
-    <tr>
-     <td>"""+browse_link+"""</td>
-     <td>"""+add_link+"""</td>
-     <td>"""+directories[i]+"""</td>
-    </tr>"""
+   <div class="directoryentry">
+    <div class="directorybutton">"""+browse_link+"""</div>
+    <div class="directorybutton">"""+add_link+"""</div>
+    <div class="directorytext">"""+directories[i]+"""</div>
+   </div>"""
 
 		body += """
-   </table>
   </div>
 """
 		print_page("WebRadioPi", body, "webradiopi")
 	else:
-		error_page(1003, "Command error: "+rel_path+" does not exist.\n", webradiopi)
+		error_page(1003, "Command error: "+rel_path+" does not exist.\n", "")
 
 ###
 # print_page() - prints the page; content type, doctype and the html head and body
@@ -236,7 +259,8 @@ def print_page(title, body_html, css):
         onclick="rp_cmd('toggle')"/></div>
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.svg" alt="next"
         onclick="rp_cmd('next')"/></div>
-   <div class="clearall"/>
+   <div class="clearall"></div>
+   <hr/>
   </div>
 """+body_html+"""
  </body>
@@ -284,4 +308,5 @@ def has_tracks(d):
 ###
 # Do the stuff :-)
 ###
-exit(main())
+main()
+exit(0)
