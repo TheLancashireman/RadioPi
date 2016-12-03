@@ -7,17 +7,18 @@
 from MpdHandler import MpdHandler
 from UiHandler import UiHandler
 from IrRc import IrRc
+from WebSock import WebSockHandler
 import time
 
 handler = [ MpdHandler() ]
 handler.append(UiHandler(handler[0]))
 
-source = [ IrRc() ]
+source = [ IrRc(), WebSockHandler() ]
 
 count = 0
 
 while True:
-	time.sleep(0.05)
+#	time.sleep(0.05)
 	for s in source:
 		e = s.GetEvent()
 		handled = False

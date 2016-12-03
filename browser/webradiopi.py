@@ -247,18 +247,22 @@ def print_page(title, body_html, css):
 
  <body>
   <div class="player">
+<!--
    <div class="playerbutton"><a href="/script/webradiopi.py"><img
         class="playerbutton" src="/images/btn-home.svg" alt="home"/></a></div>
-   <div class="playerbutton"><img class="playerbutton" src="/images/btn-begin.svg" alt="begin"
-        onclick="rp_cmd('begin')"/></div>
+-->
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-prev.svg" alt="prev"
-        onclick="rp_cmd('prev')"/></div>
+        onclick="rp_cmd('|<')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-bskip.svg" alt="fast-rev"
+        onclick="rp_cmd('<<')"/></div>
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-stop.svg" alt="stop"
         onclick="rp_cmd('stop')"/></div>
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-toggle.svg" alt="toggle"
-        onclick="rp_cmd('toggle')"/></div>
+        onclick="rp_cmd('>/||')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-fskip.svg" alt="fast-fwd"
+        onclick="rp_cmd('>>')"/></div>
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.svg" alt="next"
-        onclick="rp_cmd('next')"/></div>
+        onclick="rp_cmd('>|')"/></div>
    <div class="clearall"></div>
    <hr/>
   </div>

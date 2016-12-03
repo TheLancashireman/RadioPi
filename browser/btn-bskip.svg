@@ -16,7 +16,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="btn-begin.svg">
+   sodipodi:docname="btn-prev.svg">
   <defs
      id="defs4">
     <linearGradient
@@ -63,7 +63,7 @@
        y1="233.36218"
        x2="646"
        y2="233.36218"
-       gradientTransform="translate(74,26.362183)" />
+       gradientTransform="translate(54,22.362183)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -73,8 +73,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.5"
-     inkscape:cx="300.63037"
-     inkscape:cy="-88.06479"
+     inkscape:cx="320.63037"
+     inkscape:cy="-92.06479"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -103,32 +103,31 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer"
-     transform="translate(-74,-26.362183)">
+     transform="translate(-54,-22.362183)">
     <rect
        style="fill:url(#linearGradient5268);fill-opacity:1;stroke:#000000;stroke-width:10;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect3761"
        width="600"
        height="400"
-       x="79"
-       y="31.362183"
+       x="59"
+       y="27.362183"
        rx="30"
        ry="30" />
     <g
-       id="g5307"
-       transform="matrix(-1,0,0,-1,691.92563,464.72436)">
+       id="g5356"
+       transform="translate(19.31261,-3.9999974)">
       <path
          sodipodi:nodetypes="cccc"
          inkscape:connector-curvature="0"
          id="path5265"
-         d="m 370.23824,232.36218 -140,-82 0,166 z"
+         d="m 321.68739,232.36218 140,82 0,-166 z"
          style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <rect
-         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:9.7369585;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         id="rect5272"
-         width="28.138834"
-         height="143.39769"
-         x="363.10571"
-         y="161.66333" />
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 217.68739,232.36218 140,82 0,-166 z"
+         id="path5354"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccc" />
     </g>
   </g>
 </svg>

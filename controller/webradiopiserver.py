@@ -3,7 +3,7 @@
 # webradiopiserver.py - server for webradiopi
 #
 
-from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
+from SimpleWebSocketServer_dh import SimpleWebSocketServer, WebSocket
 
 port_no = 6502
 
