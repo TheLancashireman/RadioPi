@@ -5,7 +5,7 @@
 # (c) David Haworth
 
 from Menu import Menu, MenuThing
-from Config import Config
+from Config import radiopi_cfg
 import os
 import stat
 
@@ -32,8 +32,7 @@ class MountMenu(Menu):
 
 	def MountDev(self, mt, evt):
 		if evt == 'ok':
-			cfg = Config()
-			mountpoint = os.path.join(cfg.music_dir, cfg.music_ext)
+			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
 			if not os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
 				e = os.system('sudo umount ' + mountpoint)
 				if e != 0:

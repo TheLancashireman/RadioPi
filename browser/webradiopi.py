@@ -85,10 +85,8 @@ def process_request():
 			query_list = query_string.split('&')
 			if query_list[0] == "home":
 				front_page()
-			elif query_list[0] == "clear":
-				front_page()
-			elif query_list[0] == "shutdown":
-				front_page()
+			elif query_list[0] == "clear" or query_list[0] == "shutdown":
+				confirm_page(query_list[0])
 			elif query_list[0] == "browse":
 				if len(query_list) > 1:
 					list_dir(query_list[1])
@@ -118,6 +116,32 @@ def front_page():
 	print_page("WebRadioPi", body, "webradiopi")
 
 ###
+# confirm_page() - print the "confirmation" page
+###
+def confirm_page(cmd):
+	btn_no = "<img class=\"navbutton\" src=\"/images/btn-no.svg\" onclick=\"rp_back()\"/>"
+	btn_yes = "<img class=\"navbutton\" src=\"/images/btn-no.svg\" onclick=\"rp_cmdback('" + cmd + "')\"/>"
+	if cmd == "clear":
+		msg = "Do you really want to clear the playlist?"
+	elif cmd == "shutdown":
+		msg = "Do you really want to shut down RadioPi?"
+	else:
+		msg = "Oh yeah?"
+
+	body = """
+ <div class="confirm">
+  <h2>Please confirm:</h2>
+  <p>""" + msg + """</p>
+  <div class="confirmbar">
+   <div class="confirmbutton">""" + btn_yes + """</div>
+   <div class="confirmbutton">""" + btn_no + """</div>
+  </div>
+ </div>
+"""
+
+	print_page("WebRadioPi", body, "webradiopi")
+
+###
 # list_dir() - create a page listing the contents of a specified directory relative to music_dir
 ###
 def list_dir(rel_path):
@@ -129,7 +153,7 @@ def list_dir(rel_path):
 	directories = []
 	tracks = []
 	btn_open = "<img class=\"navbutton\" src=\"/images/btn-open.svg\"/>"
-	btn_back = "<img class=\"navbutton\" src=\"/images/btn-back.svg\"/>"
+	btn_back = "<img class=\"navbutton\" src=\"/images/btn-back.svg\" onclick=\"rp_back()\"/>"
 	btn_home = "<img class=\"navbutton\" src=\"/images/btn-home.svg\"/>"
 	add_cmd = "<img class=\"navbutton\" src=\"/images/btn-add.svg\" onclick=\"rp_add('"
 	add_cmd_end =  "')\" alt=\"Add\" />"
@@ -171,7 +195,7 @@ def list_dir(rel_path):
 			addall_link = "<img class=\"greybutton\" src=\"/images/btn-noadd.svg\"/>"
 
 		if rel_path == "":
-			up_link = "<a href=\"" + script_name + "\">" + btn_back + "</a>"
+			up_link = btn_back
 			browse_url = script_name + "?browse&"
 		else:
 			if parent == "":

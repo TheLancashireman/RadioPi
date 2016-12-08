@@ -43,13 +43,7 @@ class Browser(Menu):
 	# Add all the playable files in the MenuThing's directory
 	def AddAll(self, mt, evt):
 		if evt == 'ok':
-			dir = mt.data
-			files = os.listdir(mt.data)
-			files.sort()
-			for f in files:
-				ff = os.path.join(dir, f)
-				if self.IsPlayable(ff):
-					self.ui.mpd.Add('file://'+ff)
+			self.ui.mpd.Add(mt.data)
 			self.Ack()
 			return True
 		return False
@@ -70,7 +64,7 @@ class Browser(Menu):
 
 	def FileAction(self, mt, evt):
 		if evt == 'ok':
-			self.ui.mpd.Add('file://'+mt.data)
+			self.ui.mpd.Add(mt.data)
 			self.Ack()
 			return True
 		return False

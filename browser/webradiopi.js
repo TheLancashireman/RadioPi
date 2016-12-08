@@ -45,7 +45,18 @@ rp_add = function(f) {
 	socket.send(message)
 }
 
-// Performs parameterless commands
-rp_cmd = function(f) {
-	socket.send(f)
+// Performs parameterless command
+rp_cmd = function(c) {
+	socket.send(c)
+}
+
+// Goes back to previous page
+rp_back = function() {
+	history.go(-1)
+}
+
+// Performs parameterless command and goes back to previous page
+rp_cmdback = function(c) {
+	socket.send(c);
+	history.go(-1)
 }

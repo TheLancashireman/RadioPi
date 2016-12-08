@@ -5,20 +5,21 @@
 # (c) David Haworth
 
 from MpdHandler import MpdHandler
+from SysHandler import SysHandler
 from UiHandler import UiHandler
 from IrRc import IrRc
 from WebSock import WebSockHandler
 import time
 
-handler = [ MpdHandler() ]
-handler.append(UiHandler(handler[0]))
+mpdh = MpdHandler()
+handler = [ mpdh, UiHandler(mpdh), SysHandler() ]
 
 source = [ IrRc(), WebSockHandler() ]
 
 count = 0
 
 while True:
-#	time.sleep(0.05)
+	time.sleep(0.05)
 	for s in source:
 		e = s.GetEvent()
 		handled = False
@@ -28,7 +29,7 @@ while True:
 				if not handled:
 					handled = h.Event(e)
 	count += 1
-	if count >= 20:
+	if count >= 10:
 		#print 'Timer event'
 		for s in source:
 			s.Timer()

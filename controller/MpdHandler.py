@@ -4,6 +4,7 @@
 #
 # (c) David Haworth
 
+import os
 import mpd
 from mpd import MPDClient
 
@@ -19,7 +20,8 @@ class MpdHandler:
 			'|<'	: self.SkipBack,
 			'>|'	: self.SkipForward,
 			'<<'	: self.SeekBack,
-			'>>'	: self.SeekForward	}
+			'>>'	: self.SeekForward,
+			'clear'	: self.ClearPlaylist	}
 
 		self.MpdConnect()
 
@@ -78,20 +80,33 @@ class MpdHandler:
 		if s['state'] != 'stop':
 			self.mpdc.seekcur('+10')
 
+	def ClearPlaylist(self):
+		self.mpdc.clear()
+
 	def Add(self, ff):
-		self.mpdc.add(ff)
+		if os.path.isfile(ff):
+			self.mpdc.add("file://"+ff)
+		elif os.path.isdir(ff):
+			files = os.listdir(ff)
+			files.sort()
+			for f in files:
+				fff = os.path.join(ff, f)
+				self.mpdc.add('file://'+fff)
 
 	# Event handler
 	def Event(self, evt):
-		if evt in self.eventmap.keys():
-			if not self.mpdConnected:
-				self.MpdConnect()
-			if self.mpdConnected:
+		if not self.mpdConnected:
+			self.MpdConnect()
+		if self.mpdConnected:
+			if evt in self.eventmap.keys():
 				try:
 					self.eventmap[evt]()
 				except mpd.ConnectionError:
 					self.mpdConnected = False
-			return True
+				return True
+			elif evt[0:4] == "add ":
+				self.Add(evt[4:len(evt)])
+				return True
 		return False
 
 	# Timer handler - nothing to do

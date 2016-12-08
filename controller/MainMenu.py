@@ -4,15 +4,12 @@
 #
 # (c) David Haworth
 from Menu import Menu, MenuThing
-from Config import Config
+from Config import radiopi_cfg
 import os
 
 class MainMenu(Menu):
 	def __init__(self, ui, lcd):
 		Menu.__init__(self, ui, lcd)
-		cfg = Config()
-		self.music_dir = cfg.music_dir
-		self.ext_mount = os.path.join(self.music_dir, cfg.music_ext)
 		self.things.append(MenuThing('Clear playlist',	self.ClearPlaylist,		''))
 		self.things.append(MenuThing('Add to playlist',	self.EnterBrowser,		''))
 		self.things.append(MenuThing('Mount external',	self.MountExternal,		''))
@@ -35,7 +32,7 @@ class MainMenu(Menu):
 	def EnterBrowser(self, mt, evt):
 		if evt == 'ok' or evt == 'right':
 			print "MainMenu.EnterBrowser()"
-			self.ui.EnterBrowser(self.music_dir)
+			self.ui.EnterBrowser(radiopi_cfg.music_dir)
 			return True
 		return False
 
@@ -53,14 +50,15 @@ class MainMenu(Menu):
 	def UmountExternal(self, mt, evt):
 		if evt == 'ok':
 			print "MainMenu.UMountExternal()"
-			if os.path.isfile(os.path.join(self.ext_mount, '___NOT_MOUNTED___')):
+			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
+			if os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
 				self.Ack()
 			else:
-				e = os.system('sudo umount ' + self.ext_mount)
+				e = os.system('sudo umount ' + mountpoint)
 				if e == 0:
 					self.Ack()
 				else:
-					print 'Failed to umount ' + self.ext_mount
+					print 'Failed to umount ' + mountpoint
 			return True
 		return False
 
