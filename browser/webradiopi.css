@@ -93,9 +93,12 @@ div.confirmbar
 
 div.confirmbutton
 {
-	width: 10%;
+	width: 20%;
 	float: left;
 	text-align: center;
-	margin: 20px;
+	margin-left: 15%;
+	margin-right: 15%;
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
 

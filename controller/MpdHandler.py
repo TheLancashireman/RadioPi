@@ -95,6 +95,11 @@ class MpdHandler:
 
 	# Event handler
 	def Event(self, evt):
+		if evt == 'restartmpd':
+			os.system("sudo /etc/init.d/mpd restart")
+			self.mpdConnected = False
+			return True
+
 		if not self.mpdConnected:
 			self.MpdConnect()
 		if self.mpdConnected:

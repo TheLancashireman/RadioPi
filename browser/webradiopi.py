@@ -7,6 +7,7 @@ music_dir = ""
 music_dir_radiopi = "/home/pi/Music"
 music_dir_boru = "/data/audio/jukebox"
 music_ext = set([".ogg", ".mp3", ".wav", ".flac"])
+confirms = set(["umount", "restart", "reboot", "shutdown", "restartmpd"])
 script_name = ""
 
 ###
@@ -14,7 +15,10 @@ script_name = ""
 ###
 def main():
 	verify_env()
-	process_request()
+	try:
+		process_request()
+	except:
+		error_page(2010, "Server error - unhandled exception processing  \""+query_string+"\".", "")
 	return 0
 
 ###
@@ -77,26 +81,21 @@ def process_request():
 	except:
 		query_string = ""
 
-#	if True:
-	try:
-		if query_string == "":
+	if query_string == "":
+		front_page()
+	else:
+		query_list = query_string.split('&')
+		if query_list[0] == "home":
 			front_page()
-		else:
-			query_list = query_string.split('&')
-			if query_list[0] == "home":
-				front_page()
-			elif query_list[0] == "clear" or query_list[0] == "shutdown":
-				confirm_page(query_list[0])
-			elif query_list[0] == "browse":
-				if len(query_list) > 1:
-					list_dir(query_list[1])
-				else:
-					list_dir("")
+		elif query_list[0] in confirms:
+			confirm_page(query_list[0])
+		elif query_list[0] == "browse":
+			if len(query_list) > 1:
+				list_dir(query_list[1])
 			else:
-				error_page(1002, "Unknown command "+command+"\n", webradiopi)
-#	else:
-	except:
-		error_page(2010, "Server error - unhandled exception processing  \""+query_string+"\".", "")
+				list_dir("")
+		else:
+			error_page(1002, "Unknown command \"" + query_list[0] + "\".", "")
 
 ###
 # front_page() - print the "home" page
@@ -108,6 +107,11 @@ def front_page():
   <ul id="playlistcontrols">
    <li><a href="webradiopi.py?browse">Add tracks to playlist</a></li>
    <li><a href="webradiopi.py?clear">Clear playlist</a></li>
+   <li><a href="webradiopi.py?mount">Mount an external filesystem</a></li>
+   <li><a href="webradiopi.py?umount">Unmount the external filesystem</a></li>
+   <li><a href="webradiopi.py?restart">Restart the RadioPi program</a></li>
+   <li><a href="webradiopi.py?restartmpd">Restart MPD</a></li>
+   <li><a href="webradiopi.py?shutdown">Reboot RadioPi</a></li>
    <li><a href="webradiopi.py?shutdown">Shut down RadioPi</a></li>
   </ul>
  </div>
@@ -119,8 +123,8 @@ def front_page():
 # confirm_page() - print the "confirmation" page
 ###
 def confirm_page(cmd):
-	btn_no = "<img class=\"navbutton\" src=\"/images/btn-no.svg\" onclick=\"rp_back()\"/>"
-	btn_yes = "<img class=\"navbutton\" src=\"/images/btn-no.svg\" onclick=\"rp_cmdback('" + cmd + "')\"/>"
+	btn_no = "<a href=\"javascript:rp_back()\"><img class=\"navbutton\" src=\"/images/btn-no.svg\"/></a>"
+	btn_yes = "<a href=\"javascript:rp_cmdback('" + cmd + "')\"><img class=\"navbutton\" src=\"/images/btn-yes.svg\"/></a>"
 	if cmd == "clear":
 		msg = "Do you really want to clear the playlist?"
 	elif cmd == "shutdown":
@@ -153,7 +157,7 @@ def list_dir(rel_path):
 	directories = []
 	tracks = []
 	btn_open = "<img class=\"navbutton\" src=\"/images/btn-open.svg\"/>"
-	btn_back = "<img class=\"navbutton\" src=\"/images/btn-back.svg\" onclick=\"rp_back()\"/>"
+	btn_back = "<a href=\"javascript:rp_back()\"><img class=\"navbutton\" src=\"/images/btn-back.svg\"/></a>"
 	btn_home = "<img class=\"navbutton\" src=\"/images/btn-home.svg\"/>"
 	add_cmd = "<img class=\"navbutton\" src=\"/images/btn-add.svg\" onclick=\"rp_add('"
 	add_cmd_end =  "')\" alt=\"Add\" />"

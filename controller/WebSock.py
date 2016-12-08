@@ -12,7 +12,7 @@ port_no = 6502
 
 events = []
 
-valid_cmd = ['vol+', 'vol-', '>/||', 'stop', '|<', '>|', '<<', '>>', 'clear', 'shutdown', 'reboot', 'exit']
+valid_cmd = ['vol+', 'vol-', '>/||', 'stop', '|<', '>|', '<<', '>>', 'clear', 'shutdown', 'reboot', 'restart', 'restartmpd', 'umount']
 
 
 class WebSockHandler(WebSocket):

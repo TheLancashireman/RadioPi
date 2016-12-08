@@ -1,8 +1,8 @@
 #!/bin/sh
 
 export REQUEST_METHOD="GET"
-export QUERY_STRING="browse&00-Artist"
+export QUERY_STRING="restartmpd"
 export SCRIPT_NAME="webradiopi.py"
-export DOCUMENT_ROOT="/data/mirror/thelancashireman.org/"
+export DOCUMENT_ROOT="/var/www/html"
 
 ./webradiopi.py
