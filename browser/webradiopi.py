@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import os
 import urllib
+from Config import radiopi_cfg
+from RadioPiLib import MountableDevs
 
 
 music_dir = ""
