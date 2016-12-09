@@ -4,12 +4,13 @@ import urllib
 from Config import radiopi_cfg
 from RadioPiLib import MountableDevs
 
-
-music_dir = ""
-music_dir_radiopi = "/home/pi/Music"
-music_dir_boru = "/data/audio/jukebox"
-music_ext = set([".ogg", ".mp3", ".wav", ".flac"])
-confirms = set(["umount", "restart", "reboot", "shutdown", "restartmpd"])
+confirm_map = {
+	"clear"			: "Do you really want to clear the playlist?",
+	"umount"		: "Do you really want to unmount the external file system?",
+	"restart"		: "Do you really want to restart the control program?",
+	"reboot"		: "Do you really want to reboot RadioPi?",
+	"shutdown"		: "Do you really want to shut down RadioPi?",
+	"restartmpd"	: "Do you really want to restart MPD?"	}
 script_name = ""
 
 ###
@@ -17,9 +18,12 @@ script_name = ""
 ###
 def main():
 	verify_env()
-	try:
+	if True:
+#	try:
 		process_request()
-	except:
+	else:
+#	except:
+		query_string = urllib.unquote(os.environ["QUERY_STRING"])
 		error_page(2010, "Server error - unhandled exception processing  \""+query_string+"\".", "")
 	return 0
 
@@ -28,9 +32,6 @@ def main():
 ###
 def verify_env():
 	global script_name
-	global music_dir
-	global music_dir_radiopi
-	global music_dir_boru
 
 	# Make sure DOCUMENT_ROOT is set and specifies a directory
 	try:
@@ -64,20 +65,14 @@ def verify_env():
 #	except:
 #		error_page(2005, "Server error - QUERY_STRING is not defined.", "")
 
-	if os.path.isdir(music_dir_radiopi):
-		music_dir = music_dir_radiopi
-	elif os.path.isdir(music_dir_boru):
-		music_dir = music_dir_boru
-	else:
-		error_page(2006, "Server error - music directory not found.", "")
+	if not os.path.isdir(radiopi_cfg.music_dir):
+		error_page(2006, "Server error - music directory not found.", radiopi_cfg.music_dir)
 
 
 ###
 # process_request() - process the query, decide what to do
 ###
 def process_request():
-	global music_dir
-
 	try:
 		query_string = urllib.unquote(os.environ["QUERY_STRING"])
 	except:
@@ -89,8 +84,10 @@ def process_request():
 		query_list = query_string.split('&')
 		if query_list[0] == "home":
 			front_page()
-		elif query_list[0] in confirms:
+		elif query_list[0] in confirm_map.keys():
 			confirm_page(query_list[0])
+		elif query_list[0] == "mount":
+				list_mounts()
 		elif query_list[0] == "browse":
 			if len(query_list) > 1:
 				list_dir(query_list[1])
@@ -127,12 +124,7 @@ def front_page():
 def confirm_page(cmd):
 	btn_no = "<a href=\"javascript:rp_back()\"><img class=\"navbutton\" src=\"/images/btn-no.svg\"/></a>"
 	btn_yes = "<a href=\"javascript:rp_cmdback('" + cmd + "')\"><img class=\"navbutton\" src=\"/images/btn-yes.svg\"/></a>"
-	if cmd == "clear":
-		msg = "Do you really want to clear the playlist?"
-	elif cmd == "shutdown":
-		msg = "Do you really want to shut down RadioPi?"
-	else:
-		msg = "Oh yeah?"
+	msg = confirm_map[cmd]
 
 	body = """
  <div class="confirm">
@@ -151,7 +143,6 @@ def confirm_page(cmd):
 # list_dir() - create a page listing the contents of a specified directory relative to music_dir
 ###
 def list_dir(rel_path):
-	global music_dir
 	parent = ""
 	body = ""
 	up_link = ""
@@ -164,7 +155,7 @@ def list_dir(rel_path):
 	add_cmd = "<img class=\"navbutton\" src=\"/images/btn-add.svg\" onclick=\"rp_add('"
 	add_cmd_end =  "')\" alt=\"Add\" />"
 
-	path = os.path.join(music_dir, rel_path)
+	path = os.path.join(radiopi_cfg.music_dir, rel_path)
 
 	if os.path.isdir(path):
 		if rel_path == "":
@@ -186,10 +177,13 @@ def list_dir(rel_path):
 		for f in sorted(files):
 			full = os.path.join(path, f)
 
-			if os.path.isdir(full):		# Follows symlinks
+			if f[0] == ".":
+				# Ignore hidden files
+				pass
+			elif os.path.isdir(full):		# Follows symlinks
 				directories.append(f)
 				n_dirs += 1
-			elif os.path.isfile(full):	# Follows symlinks
+			elif os.path.isfile(full):		# Follows symlinks
 				if is_track(f):
 					tracks.append(f)
 					n_tracks += 1
@@ -251,6 +245,41 @@ def list_dir(rel_path):
 		print_page("WebRadioPi", body, "webradiopi")
 	else:
 		error_page(1003, "Command error: "+rel_path+" does not exist.\n", "")
+
+###
+# list_mounts() - create a page listing the mountable file systems
+###
+def list_mounts():
+	btn_mount = "<img class=\"navbutton\" src=\"/images/btn-add.svg\"/>"
+	btn_back = "<a href=\"javascript:rp_back()\"><img class=\"navbutton\" src=\"/images/btn-back.svg\"/></a>"
+
+	devs = MountableDevs("/dev")
+
+	body = """
+  <h2>Select device:</h2>
+  <div class="directorylisting">
+"""
+
+	for d in devs:
+		link = "<a href=\"javascript:rp_mount('" + d + "')\">"
+		link += btn_mount + "</a>"
+		body += """
+   <div class="directoryentry">
+    <div class="directorybutton">""" + link + """</div>
+    <div class="directorytext">""" + d + """</div>
+   </div>
+"""
+
+	body += """
+   <div class="directoryentry"><hr/></div>
+   <div class="directoryentry">
+    <div class="directorybutton">""" + btn_back + """</div>
+    <div class="directorytext">Cancel</div>
+   </div>
+  </div>
+"""
+
+	print_page("WebRadioPi", body, "webradiopi")
 
 ###
 # print_page() - prints the page; content type, doctype and the html head and body
@@ -322,16 +351,18 @@ def error_page(errcode, errmsg, errinfo):
 # is_track() - return True if the file is a music file
 ###
 def is_track(f):
-	global music_ext
 	(n,e) = os.path.splitext(f.lower())
-	return e in music_ext
+	return e in radiopi_cfg.music_sfx
 
 ###
 # has_tracks() - return True if the directory contains one or more music files
 ###
 def has_tracks(d):
 	if os.path.isdir(d):
-		files = os.listdir(d)
+		try:
+			files = os.listdir(d)
+		except:
+			return False		# Probably "permission denied"
 		for f in files:
 			full = os.path.join(d, f)
 			if os.path.isfile(full):	# Follows symlinks

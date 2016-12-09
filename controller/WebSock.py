@@ -6,7 +6,8 @@
 
 import os
 from SimpleWebSocketServer_dh import SimpleWebSocketServer, WebSocket
-from RadioPiCfg import Cfg_MusicDir, Dbg_Print
+from Config import radiopi_cfg
+from RadioPiLib import MountableDevs
 
 port_no = 6502
 
@@ -38,19 +39,27 @@ class WebSockHandler(WebSocket):
 
 class WebSock(WebSocket):
 	def handleMessage(self):
+		global events
 		msg = self.data
 		print "WebSock command:", msg
 		if msg in valid_cmd:
 			events.append(msg)
 		elif msg[0:4] == "add ":
-			npath = os.path.normpath(os.path.join(Cfg_MusicDir, msg[4:len(msg)]))
-			if npath[0:len(Cfg_MusicDir)] == Cfg_MusicDir:
+			npath = os.path.normpath(os.path.join(radiopi_cfg.music_dir, msg[4:len(msg)]))
+			if npath[0:len(radiopi_cfg.music_dir)] == radiopi_cfg.music_dir:
 				if os.path.isfile(npath) or os.path.isdir(npath):
 					events.append("add " + npath)
 				else:
 					print "Websock invalid path:", msg
 			else:
 				"Websock attempt to break out of jail:", msg
+		elif msg[0:6] == "mount ":
+			d = msg[6:len(msg)]
+			devs = MountableDevs("/dev")
+			if d in devs:
+				events.append("mount " + os.path.join("/dev", d))
+			else:
+				print "Websock invalid device:", msg
 		else:
 			print "WebSock invalid command:", msg
 

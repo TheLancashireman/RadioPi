@@ -5,6 +5,7 @@
 # (c) David Haworth
 
 from Menu import Menu, MenuThing
+from Config import radiopi_cfg
 import os
 
 class Browser(Menu):
@@ -38,7 +39,8 @@ class Browser(Menu):
 	# the moment we only check if it's a file.
 	# WARNING: the add command claims to be recursive for directories, but appears not to work.
 	def IsPlayable(self, f):
-		return os.path.isfile(f)
+		(n,e) = os.path.splitext(f.lower())
+		return os.path.isfile(f) and e in radiopi_cfg.music_sfx
 
 	# Add all the playable files in the MenuThing's directory
 	def AddAll(self, mt, evt):

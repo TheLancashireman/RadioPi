@@ -6,6 +6,7 @@
 
 from Menu import Menu, MenuThing
 from Config import radiopi_cfg
+from RadioPiLib import MountableDevs
 import os
 import stat
 
@@ -15,14 +16,11 @@ class MountMenu(Menu):
 		self.things.append(MenuThing('Back',	self.Back,		''))
 		devdir = '/dev'
 
-		devs = os.listdir(devdir)
-		devs.sort()
+		devs = MountableDevs(devdir)
 
 		for f in devs:
 			ff = os.path.join(devdir, f)
-			if stat.S_ISBLK(os.stat(ff).st_mode):
-				if not ( f.startswith('ram') or f.startswith('loop') or f.startswith('mmcblk0') ):
-					self.things.append(MenuThing(f,	self.MountDev, ff))
+			self.things.append(MenuThing(f,	self.MountDev, ff))
 
 	def Back(self, mt, evt):
 		if evt == 'ok':

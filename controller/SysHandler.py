@@ -25,7 +25,8 @@ class SysHandler:
 			exit(0)
 			return True
 
-		if evt[0:6] == "mount":
+		if evt[0:6] == "mount ":
+			print "SysHandler:", evt
 			dev = evt[6:len(evt)]
 			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
 			if os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):

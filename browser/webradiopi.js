@@ -60,3 +60,10 @@ rp_cmdback = function(c) {
 	socket.send(c);
 	window.history.back()
 }
+
+// Performs mount
+rp_mount = function(f) {
+	var message = 'mount ' + f;
+	socket.send(message);
+	window.history.back()
+}
