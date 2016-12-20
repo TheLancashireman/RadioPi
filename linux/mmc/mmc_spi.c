@@ -43,6 +43,9 @@
 
 #include <asm/unaligned.h>
 
+#define DH_DBG	0
+#define DH_ERRDBG	1
+
 
 /* NOTES:
  *
@@ -223,6 +226,11 @@ static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 		if (time_is_before_jiffies(start+1))
 			schedule();
 	}
+#if DH_ERRDBG
+/* dh 2017-01-25 */
+pr_info("mmc_spi_skip(): ETIMEDOUT start = %ld, timeout = %ld, jiffies = %ld\n", start, timeout, jiffies);
+/* dh end */
+#endif
 	return -ETIMEDOUT;
 }
 
@@ -307,6 +315,11 @@ static int mmc_spi_response_get(struct mmc_spi_host *host,
 			if (*cp != 0xff)
 				goto checkstatus;
 		}
+#if DH_ERRDBG
+/* dh 2017-01-25 */
+pr_info("mmc_spi_response_get(): ETIMEDOUT cp = 0x%08x, end = 0x%08x\n", (unsigned)cp, (unsigned)end);
+/* dh end */
+#endif
 		value = -ETIMEDOUT;
 		goto done;
 	}
@@ -314,26 +327,56 @@ static int mmc_spi_response_get(struct mmc_spi_host *host,
 checkstatus:
 	bitshift = 0;
 	if (*cp & 0x80)	{
+#if DH_DBG
 /* dh 2017-01-19 */
 pr_info("Houston, we have an ugly card with a bit-shifted response: 0x%02x\n", *cp);
 /* dh end */
+#endif
 		/* Houston, we have an ugly card with a bit-shifted response */
 		rotator = *cp++ << 8;
 		/* read the next byte */
 		if (cp == end) {
 			value = mmc_spi_readbytes(host, 1);
 			if (value < 0)
+			{
+#if DH_DBG
+/* dh 2017-01-21 */
+pr_info("Shifted response - no more bytes; status =  %d\n", value);
+/* dh end */
+#endif
 				goto done;
+			}
+#if DH_DBG
+/* dh 2017-01-21 */
+pr_info("Shifted response - one more byte; status = %d\n", value);
+/* dh end */
+#endif
 			cp = host->data->status;
 			end = cp+1;
 		}
+#if DH_DBG
+/* dh 2017-01-21 */
+pr_info("Shifted response - extra byte: 0x%02x\n", *cp);
+/* dh end */
+#endif
 		rotator |= *cp++;
+#if DH_DBG
+/* dh 2017-01-21 */
+pr_info("Shifted response - before shift: rotator = 0x%04x\n", rotator);
+/* dh end */
+#endif
 		while (rotator & 0x8000) {
 			bitshift++;
 			rotator <<= 1;
 		}
 		cmd->resp[0] = rotator >> 8;
 		leftover = rotator;
+#if DH_DBG
+/* dh 2017-01-21 */
+pr_info("Shifted response - after shift: rotator = 0x%04x, bitshift = %d, resp = 0x%02x, leftover = 0x%02x\n",
+		rotator, bitshift, cmd->resp[0], leftover);
+/* dh end */
+#endif
 	} else {
 		cmd->resp[0] = *cp++;
 	}
@@ -341,9 +384,11 @@ pr_info("Houston, we have an ugly card with a bit-shifted response: 0x%02x\n", *
 
 	/* Status byte: the entire seven-bit R1 response.  */
 	if (cmd->resp[0] != 0) {
+#if DH_DBG
 /* dh 2017-01-19 */
 pr_info("cmd->resp[0] = 0x%02x\n", cmd->resp[0]);
 /* dh end */
+#endif
 		if ((R1_SPI_PARAMETER | R1_SPI_ADDRESS)
 				& cmd->resp[0])
 			value = -EFAULT; /* Bad address */
@@ -355,6 +400,10 @@ pr_info("cmd->resp[0] = 0x%02x\n", cmd->resp[0]);
 				& cmd->resp[0])
 			value = -EIO;    /* I/O error */
 		/* else R1_SPI_IDLE, "it's resetting" */
+#if 0 /* possible patch dh 2017-01-26 */
+		if ( value < 0 )
+			goto done;
+#endif
 	}
 
 	switch (mmc_spi_resp_type(cmd)) {
@@ -529,9 +578,11 @@ mmc_spi_command_send(struct mmc_spi_host *host,
 	dev_dbg(&host->spi->dev, "  mmc_spi: CMD%d, resp %s\n",
 		cmd->opcode, maptype(cmd));
 
+#if DH_DBG
 /* dh 2017-01-19 */
 pr_info("  mmc_spi: CMD%d, resp %s\n", cmd->opcode, maptype(cmd));
 /* dh end */
+#endif
 
 	/* send command, leaving chipselect active */
 	spi_message_init(&host->m);
