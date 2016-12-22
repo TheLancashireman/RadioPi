@@ -3,11 +3,11 @@ var socket;
 window.onload = function() {
 
 	// Create a new WebSocket.
-//	var hostname = 'localhost';
-//	if (window.location.hostname != '') {
-//		hostname = window.location.hostname;
-//	}
-	var hostname = 'radiopi';
+	var hostname = '192.168.8.21';
+	if (window.location.hostname != '') {
+		hostname = window.location.hostname;
+	}
+//	var hostname = 'radiopi';
 	socket = new WebSocket('ws://' + hostname + ':6502');
 
 	// Handle any errors that occur.
