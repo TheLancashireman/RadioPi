@@ -44,7 +44,8 @@
 #include <asm/unaligned.h>
 
 #define DH_DBG	0
-#define DH_ERRDBG	1
+#define DH_UGLYDBG	1
+#define DH_ERRDBG	0
 
 
 /* NOTES:
@@ -216,7 +217,7 @@ static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 				return cp[i];
 		}
 
-		if (time_is_before_jiffies(start + timeout))
+		if (time_is_before_jiffies(start + timeout + 1))	/* dh 2017-01-26 engineering tolerance :-) */
 			break;
 
 		/* If we need long timeouts, we may release the CPU.
@@ -226,10 +227,8 @@ static int mmc_spi_skip(struct mmc_spi_host *host, unsigned long timeout,
 		if (time_is_before_jiffies(start+1))
 			schedule();
 	}
-#if DH_ERRDBG
-/* dh 2017-01-25 */
+#if DH_ERRDBG /* dh 2017-01-25 */
 pr_info("mmc_spi_skip(): ETIMEDOUT start = %ld, timeout = %ld, jiffies = %ld\n", start, timeout, jiffies);
-/* dh end */
 #endif
 	return -ETIMEDOUT;
 }
@@ -281,6 +280,18 @@ static int mmc_spi_response_get(struct mmc_spi_host *host,
 
 	snprintf(tag, sizeof(tag), "  ... CMD%d response SPI_%s",
 		cmd->opcode, maptype(cmd));
+#if DH_DBG /* dh 2017-01-26 */
+pr_info("  mmc_spi: CMD%d, resp SPI_%s, cp = 0x%08x end = 0x%08x\n",
+	cmd->opcode, maptype(cmd), (unsigned)cp, (unsigned)end);
+#endif
+#if DH_ERRDBG
+if ( host->t.len < 8 )
+{
+	pr_info("  mmc_spi: less than 8 bytes!!! CMD%d, resp SPI_%s, cp = 0x%08x end = 0x%08x\n",
+		cmd->opcode, maptype(cmd), (unsigned)cp, (unsigned)end);
+}
+#endif
+
 
 	/* Except for data block reads, the whole response will already
 	 * be stored in the scratch buffer.  It's somewhere after the
@@ -315,10 +326,8 @@ static int mmc_spi_response_get(struct mmc_spi_host *host,
 			if (*cp != 0xff)
 				goto checkstatus;
 		}
-#if DH_ERRDBG
-/* dh 2017-01-25 */
+#if DH_ERRDBG /* dh 2017-01-25 */
 pr_info("mmc_spi_response_get(): ETIMEDOUT cp = 0x%08x, end = 0x%08x\n", (unsigned)cp, (unsigned)end);
-/* dh end */
 #endif
 		value = -ETIMEDOUT;
 		goto done;
@@ -327,10 +336,8 @@ pr_info("mmc_spi_response_get(): ETIMEDOUT cp = 0x%08x, end = 0x%08x\n", (unsign
 checkstatus:
 	bitshift = 0;
 	if (*cp & 0x80)	{
-#if DH_DBG
-/* dh 2017-01-19 */
+#if DH_UGLYDBG /* dh 2017-01-19 */
 pr_info("Houston, we have an ugly card with a bit-shifted response: 0x%02x\n", *cp);
-/* dh end */
 #endif
 		/* Houston, we have an ugly card with a bit-shifted response */
 		rotator = *cp++ << 8;
@@ -339,31 +346,23 @@ pr_info("Houston, we have an ugly card with a bit-shifted response: 0x%02x\n", *
 			value = mmc_spi_readbytes(host, 1);
 			if (value < 0)
 			{
-#if DH_DBG
-/* dh 2017-01-21 */
+#if DH_UGLYDBG /* dh 2017-01-21 */
 pr_info("Shifted response - no more bytes; status =  %d\n", value);
-/* dh end */
 #endif
 				goto done;
 			}
-#if DH_DBG
-/* dh 2017-01-21 */
+#if DH_UGLYDBG /* dh 2017-01-21 */
 pr_info("Shifted response - one more byte; status = %d\n", value);
-/* dh end */
 #endif
 			cp = host->data->status;
 			end = cp+1;
 		}
-#if DH_DBG
-/* dh 2017-01-21 */
+#if DH_UGLYDBG /* dh 2017-01-21 */
 pr_info("Shifted response - extra byte: 0x%02x\n", *cp);
-/* dh end */
 #endif
 		rotator |= *cp++;
-#if DH_DBG
-/* dh 2017-01-21 */
+#if DH_UGLYDBG /* dh 2017-01-21 */
 pr_info("Shifted response - before shift: rotator = 0x%04x\n", rotator);
-/* dh end */
 #endif
 		while (rotator & 0x8000) {
 			bitshift++;
@@ -371,11 +370,9 @@ pr_info("Shifted response - before shift: rotator = 0x%04x\n", rotator);
 		}
 		cmd->resp[0] = rotator >> 8;
 		leftover = rotator;
-#if DH_DBG
-/* dh 2017-01-21 */
+#if DH_UGLYDBG /* dh 2017-01-21 */
 pr_info("Shifted response - after shift: rotator = 0x%04x, bitshift = %d, resp = 0x%02x, leftover = 0x%02x\n",
 		rotator, bitshift, cmd->resp[0], leftover);
-/* dh end */
 #endif
 	} else {
 		cmd->resp[0] = *cp++;
@@ -384,10 +381,8 @@ pr_info("Shifted response - after shift: rotator = 0x%04x, bitshift = %d, resp =
 
 	/* Status byte: the entire seven-bit R1 response.  */
 	if (cmd->resp[0] != 0) {
-#if DH_DBG
-/* dh 2017-01-19 */
+#if DH_UGLYDBG /* dh 2017-01-19 */
 pr_info("cmd->resp[0] = 0x%02x\n", cmd->resp[0]);
-/* dh end */
 #endif
 		if ((R1_SPI_PARAMETER | R1_SPI_ADDRESS)
 				& cmd->resp[0])
@@ -578,10 +573,8 @@ mmc_spi_command_send(struct mmc_spi_host *host,
 	dev_dbg(&host->spi->dev, "  mmc_spi: CMD%d, resp %s\n",
 		cmd->opcode, maptype(cmd));
 
-#if DH_DBG
-/* dh 2017-01-19 */
+#if DH_DBG /* dh 2017-01-19 */
 pr_info("  mmc_spi: CMD%d, resp %s\n", cmd->opcode, maptype(cmd));
-/* dh end */
 #endif
 
 	/* send command, leaving chipselect active */
@@ -1451,7 +1444,7 @@ static int mmc_spi_probe(struct spi_device *spi)
 	host->data = kmalloc(sizeof(*host->data), GFP_KERNEL);
 	if (!host->data)
 		goto fail_nobuf1;
-#if 1
+#if 0
 /* dh 2017-01-17  see https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=34968&p=865757&hilit=mmc+spi#p865757 */
 	if (spi->master->dev.parent->dma_mask) {
 		struct device	*dev = spi->master->dev.parent;
