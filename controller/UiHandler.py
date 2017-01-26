@@ -34,18 +34,19 @@ col_vol		= 18	# 3 digits
 
 
 class UiHandler:
-	def __init__(self, mpd):
+	def __init__(self, eq, mpd):
+		self.eq = eq						# Event queue
 		self.mpd = mpd						# MPD handler
 		self.mode = mode_Disconnected		# Current mode
 		self.count = 0
 #----
 		self.vol = -1						# State of info on screen. Only update if changed.
 		self.time = -1
-		self.artist = ''
-		self.album = ''
-		self.title = ''
+		self.artist = ""
+		self.album = ""
+		self.title = ""
 		self.dur = -1
-		self.state = ''
+		self.state = ""
 		self.force = True					# Forced update
 #----
 		self.menu = None
@@ -164,35 +165,58 @@ class UiHandler:
 # Handle a user input event
 #===========================================================
 	def Event(self, evt):
-
 		if self.mode < mode_Home:				# Ignore events during start sequence.
 			return False
 
 		self.count = 30							# Restart the inactivity timer
 
-		if self.mode == mode_Home:				# On home screen, 'menu', 'ok' or 'right' enters menu.
-			if evt == 'menu' or  evt == 'ok' or evt == 'right':
+		if self.mode == mode_Home:				# On home screen, 'menu', 'ok', 'right' or 'Rl' enters menu.
+			# Translate rotary control events and requeue those not for me.
+			if evt == "R+":
+				self.eq.PutEvent("vol+")
+				return True
+			if evt == "R-":
+				self.eq.PutEvent("vol-")
+				return True
+			if evt == "Rs":
+				self.eq.PutEvent(">/||")
+				return True
+			if evt == "Rl":		# Handle this one locally (don't requeue)
+				evt = "menu"
+
+			if evt == "menu" or  evt == "ok" or evt == "right":
 				self.mode = mode_Menu
 				self.Enter()
 				return True
+
 			return False						# Ignore all other events while on home screen.
 
-		if evt == 'home':						# Anywhere in the menus, 'home' exits back to the home screen
+		if evt == "home":						# Anywhere in the menus, 'home' exits back to the home screen
 			self.menu = None					# Clear the menu stack
 			self.menustack = []
 			self.ModeHome()
 			return True
 
+		# Translate rotary control events for menu mode and handle locally (don't requeue)
+		if evt == "R+":
+			evt = "down"
+		elif evt == "R-":
+			evt = "up"
+		elif evt == "Rl":
+			evt = "back"
+		elif evt == "Rs":
+			evt = "ok"
+
 		# Menu mode. Handle up/down/left/back as navigation on existing menu stack.
-		if evt == 'back' or evt == 'left':
+		if evt == "back" or evt == "left" :
 			self.Back()
 			return True
 
-		elif evt == 'up':
+		elif evt == "up" or evt == "R-":
 			self.menu.PtrUp()
 			return True
 
-		elif evt == 'down':
+		elif evt == "down" or evt == "R+":
 			self.menu.PtrDown()
 			return True
 
@@ -207,10 +231,10 @@ class UiHandler:
 	def StartupScreen(self):
 		if self.force:
 			self.lcd.HomeAndClear()
-			self.lcd.Write('      RadioPi\r\n')
-			self.lcd.Write('\r\n')
-			self.lcd.Write('\r\n')
-			self.lcd.Write('  waiting for mpd')
+			self.lcd.Write("      RadioPi\r\n")
+			self.lcd.Write("\r\n")
+			self.lcd.Write("\r\n")
+			self.lcd.Write("  waiting for mpd")
 		self.force = False
 
 #===========================================================
@@ -227,42 +251,42 @@ class UiHandler:
 #===========================================================
 
 	def HomeScreen(self):
-		l_artist = ''
-		l_album = ''
-		l_title = ''
+		l_artist = ""
+		l_album = ""
+		l_title = ""
 		l_dur = -1
-		l_file = ''
+		l_file = ""
 
 		s = self.mpd.Status()
-		l_vol = int(s['volume'])
-		l_state = s['state']
-		if l_state == 'stop':
+		l_vol = int(s["volume"])
+		l_state = s["state"]
+		if l_state == "stop":
 			l_time = -1
 		else:
-			l_time = int(float(s['elapsed']))
+			l_time = int(float(s["elapsed"]))
 
 		s = self.mpd.CurrentSong()
 		if s:
 			for k in s.keys():
-				if k == 'artist':
-					l_artist = s['artist']
-				elif k == 'album':
-					l_album = s['album']
-				elif k == 'title':
-					l_title = s['title']
-				elif k == 'time':
-					l_dur = int(s['time'])
-				elif k == 'file':
-					l_file = s['file']
+				if k == "artist":
+					l_artist = s["artist"]
+				elif k == "album":
+					l_album = s["album"]
+				elif k == "title":
+					l_title = s["title"]
+				elif k == "time":
+					l_dur = int(s["time"])
+				elif k == "file":
+					l_file = s["file"]
 
-			if l_title == '' and l_file != '':
+			if l_title == "" and l_file != "":
 				x, l_title = os.path.split(l_file)
 
 		else:
 			# No track
-			l_artist = '      RadioPi'
-			l_album = ''
-			l_title = '===== no track ====='
+			l_artist = "      RadioPi"
+			l_album = ""
+			l_title = "===== no track ====="
 
 		if self.force:
 			self.lcd.HomeAndClear()
@@ -286,28 +310,28 @@ class UiHandler:
 			if self.force or self.dur != l_dur:
 				self.dur = l_dur
 				self.time = -1
-				self.lcd.WriteAt(row_time, col_time, '           ')
+				self.lcd.WriteAt(row_time, col_time, "           ")
 		else:
 			if self.force or self.time != l_time:
 				self.time = l_time
 				if l_time < 0:
-					s_time = '--:--'
+					s_time = "--:--"
 				else:
 					mins = l_time / 60
 					secs = l_time % 60
-					s_time = '%02d:%02d'%(mins, secs)
+					s_time = "%02d:%02d"%(mins, secs)
 				self.lcd.WriteAt(row_time, col_time, s_time)
 
 			if self.force or self.dur != l_dur:
 				self.dur = l_dur
 				mins = l_dur / 60
 				secs = l_dur % 60
-				s_time = '/%02d:%02d'%(mins, secs)
+				s_time = "/%02d:%02d"%(mins, secs)
 				self.lcd.WriteAt(row_dur, col_dur, s_time)
 		
 		if self.force or self.vol != l_vol:
 			self.vol = l_vol
-			s_vol = '%3d'%(l_vol)
+			s_vol = "%3d"%(l_vol)
 			self.lcd.WriteAt(row_vol, col_vol, s_vol)
 
 		self.force = False

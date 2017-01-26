@@ -4,32 +4,47 @@
 #
 # (c) David Haworth
 
+from EventQueue import EventQueue
 from MpdHandler import MpdHandler
 from SysHandler import SysHandler
 from UiHandler import UiHandler
 from IrRc import IrRc
+from Rotary import Rotary
 from WebSock import WebSockHandler
 import time
 
-mpdh = MpdHandler()
-handler = [ mpdh, UiHandler(mpdh), SysHandler() ]
+sleepyTime = 0.05	# Sleep time in seconds
+longTime = 0.5		# Long time for timer events
+longTicks = longTime/sleepyTime
 
-source = [ IrRc(), WebSockHandler() ]
+eq = EventQueue()
+mpdh = MpdHandler(eq)
+
+source = [ IrRc(eq), Rotary(eq, sleepyTime), WebSockHandler(eq) ]
+handler = [ mpdh, UiHandler(eq, mpdh), SysHandler(eq) ]
 
 count = 0
 
 while True:
-	time.sleep(0.05)
+	time.sleep(sleepyTime)
+
+	# Poll all the event sources. Sources place their events in the event queue.
 	for s in source:
-		e = s.GetEvent()
+		s.Poll()
+
+	# Handle all the events. This may result in more events being generated.
+	e = eq.GetEvent()
+	while ( e != "" ):
 		handled = False
-		if e != '':
-			print e		# Debug
-			for h in handler:
-				if not handled:
-					handled = h.Event(e)
+		print e		# Debug
+		for h in handler:
+			if not handled:
+				handled = h.Event(e)
+		e = eq.GetEvent()
+
+	#
 	count += 1
-	if count >= 10:
+	if count >= longTicks:
 		#print 'Timer event'
 		for s in source:
 			s.Timer()

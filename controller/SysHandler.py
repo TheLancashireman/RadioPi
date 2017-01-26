@@ -8,7 +8,8 @@ import os
 from Config import radiopi_cfg
 
 class SysHandler:
-	def __init__(self):
+	def __init__(self, eq):
+		self.eq = eq
 		return
 
 	# Event handler

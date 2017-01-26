@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# I/R Remote Control input
+# USB I/R Remote Control input
 #
 # (c) David Haworth
 
@@ -51,7 +51,8 @@ irrc_map = {
 	'\x04\x80\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00'	:	'yellow'	}
 
 class IrRc:
-	def __init__(self):
+	def __init__(self, eq):
+		self.eq = eq
 		self.irrc_present = False
 		self.Open()
 
@@ -69,14 +70,14 @@ class IrRc:
 			self.Open()
 		return False
 
-	def GetEvent(self):					# Called frequently to read keys from remote control.
-		k = ''
+	def Poll(self):					# Called frequently to read keys from remote control.
 		if self.irrc_present:
 			try:
 				rrdy, wrdy, xrdy = select.select([self.irrc], [], [], 0)
 				if rrdy:
 					q = self.irrc.read(16)
 					k = irrc_map[q]
+					self.eq.PutEvent(k)
 			except KeyError:
 				print 'Unknown keycode'
 			except IOError:
@@ -85,4 +86,4 @@ class IrRc:
 					self.irrc.close()
 				except:
 					pass
-		return k
+		return False

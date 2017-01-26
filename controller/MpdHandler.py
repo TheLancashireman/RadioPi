@@ -9,7 +9,8 @@ import mpd
 from mpd import MPDClient
 
 class MpdHandler:
-	def __init__(self):
+	def __init__(self, eq):
+		self.eq = eq
 		self.mpdc = MPDClient()
 		self.mpdConnected = False
 		self.eventmap = {
