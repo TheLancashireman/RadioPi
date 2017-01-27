@@ -9,6 +9,7 @@ from MpdHandler import MpdHandler
 from SysHandler import SysHandler
 from UiHandler import UiHandler
 from IrRc import IrRc
+from Lirc import Lirc
 from Rotary import Rotary
 from WebSock import WebSockHandler
 import time
@@ -20,7 +21,7 @@ longTicks = longTime/sleepyTime
 eq = EventQueue()
 mpdh = MpdHandler(eq)
 
-source = [ IrRc(eq), Rotary(eq, sleepyTime), WebSockHandler(eq) ]
+source = [ Lirc(eq), IrRc(eq), Rotary(eq, sleepyTime), WebSockHandler(eq) ]
 handler = [ mpdh, UiHandler(eq, mpdh), SysHandler(eq) ]
 
 count = 0

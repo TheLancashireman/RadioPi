@@ -1,0 +1,215 @@
+begin
+button = KEY_POWER
+prog = RadioPi
+config = power
+end
+
+begin
+button = KEY_EMAIL
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_WWW
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_CLOSE
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_A
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_B
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_C
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_D
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_PREVIOUS
+prog = RadioPi
+config = |<
+end
+
+begin
+button = KEY_NEXT
+prog = RadioPi
+config = >|
+end
+
+begin
+button = KEY_REWIND
+prog = RadioPi
+config = <<
+end
+
+begin
+button = KEY_FORWARD
+prog = RadioPi
+config = >>
+end
+
+begin
+button = KEY_PLAYPAUSE
+prog = RadioPi
+config = >/||
+end
+
+begin
+button = KEY_STOP
+prog = RadioPi
+config = stop
+end
+
+begin
+button = BTN_LEFT
+prog = RadioPi
+config = foo
+end
+
+begin
+button = BTN_RIGHT
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_SCREEN
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_MUTE
+prog = RadioPi
+config = mute
+end
+
+begin
+button = KEY_VOLUMEDOWN
+prog = RadioPi
+config = vol-
+end
+
+begin
+button = KEY_VOLUMEUP
+prog = RadioPi
+config = vol+
+end
+
+begin
+button = KEY_TAB
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_UP
+prog = RadioPi
+config = up
+end
+
+begin
+button = KEY_HOME
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_BACKSPACE
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_LEFT
+prog = RadioPi
+config = left
+end
+
+begin
+button = KEY_ENTER
+prog = RadioPi
+config = ok
+end
+
+begin
+button = KEY_RIGHT
+prog = RadioPi
+config = right
+end
+
+begin
+button = KEY_PAGEUP
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_PAGEDOWN
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_ESC
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_DOWN
+prog = RadioPi
+config = down
+end
+
+begin
+button = KEY_OPEN
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_NUMLOCK
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_0
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_PC
+prog = RadioPi
+config = foo
+end
+
+begin
+button = KEY_SCREEN
+prog = RadioPi
+config = foo
+end

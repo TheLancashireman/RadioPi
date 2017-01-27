@@ -31,3 +31,40 @@ if os.path.isdir(l[i]):
    d = os.path.join(d, l[i])
 else:
    mpd.add(os.path.join(d, l[i])
+
+lirc
+
+lirc-rpi supports a 38 KHz sensor directly connected to GPIO pin
+
+To "train" a remote control:
+
+	1. Run irrecord 
+         irrecord -d /dev/lirc0 <outputfile>
+       and follow the instructions.
+       Copy the file to /etc/lirc/lircd.conf
+    2. Create a file containing something like this:
+         begin
+         button = KEY_PLAY   # What button is pressed on the remote. Can be the names used in irrecord
+         prog = myprogram    # Program to handle this command
+         config = foo        # String that the button translates to
+         end
+       one entry for each key.
+       Copy the file to ~/.lircrc
+    3. In Python:
+         import lirc
+         sockid = lirc.init("myprogram")
+         lirc.nextcode()     # Returns the elements of the config line as a list
+         lirc.deinit()
+
+       Load custom configurations with:
+
+         sockid = lirc.init("myprogram", "mylircrc")
+         lirc.load_config_file("another-config-file") # subsequent configs
+
+       Set whether `nextcode` blocks or not with:
+
+         sockid = lirc.init("myprogram", blocking=False)
+         lirc.set_blocking(True, sockid) # or this
+
+   
+
