@@ -7,7 +7,7 @@
 import os
 from SimpleWebSocketServer_dh import SimpleWebSocketServer, WebSocket
 from Config import radiopi_cfg
-from RadioPiLib import MountableDevs
+from RadioPiLib import MountableDevs, Dbg_Print
 
 port_no = 6502
 evtq = 0
@@ -19,7 +19,7 @@ class WebSockHandler(WebSocket):
 	def __init__(self, eq):
 		global evtq
 		evtq = eq
-		print "Starting websocket server on localhost:%d" % port_no
+		Dbg_Print(1, "Starting websocket server on localhost:%d" % port_no)
 		self.server = SimpleWebSocketServer("", port_no, WebSock)
 		self.server.selectInterval = 0.0
 
@@ -33,7 +33,7 @@ class WebSockHandler(WebSocket):
 class WebSock(WebSocket):
 	def handleMessage(self):
 		msg = self.data
-		print "WebSock command:", msg
+		Dbg_Print(2, "WebSock command:", msg)
 		if msg in valid_cmd:
 			evtq.PutEvent(msg)
 		elif msg[0:4] == "add ":
@@ -42,21 +42,21 @@ class WebSock(WebSocket):
 				if os.path.isfile(npath) or os.path.isdir(npath):
 					evtq.PutEvent("add " + npath)
 				else:
-					print "Websock invalid path:", msg
+					Dbg_Print(0, "Websock invalid path:", msg)
 			else:
-				"Websock attempt to break out of jail:", msg
+				Dbg_Print(0, "Websock attempt to break out of jail:", msg)
 		elif msg[0:6] == "mount ":
 			d = msg[6:len(msg)]
 			devs = MountableDevs("/dev")
 			if d in devs:
 				evtq.PutEvent("mount " + os.path.join("/dev", d))
 			else:
-				print "Websock invalid device:", msg
+				Dbg_Print(0, "Websock invalid device:", msg)
 		else:
-			print "WebSock invalid command:", msg
+			Dbg_Print(0, "WebSock invalid command:", msg)
 
 	def handleConnected(self):
-		print "WebSock", self.address, "connected"
+		Dbg_Print(1, "WebSock", self.address, "connected")
 
 	def handleClose(self):
-		print "WebSock", self.address, "closed"
+		Dbg_Print(1, "WebSock", self.address, "closed")

@@ -17,6 +17,9 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-su -l -c "/home/pi/RadioPi/controller/RadioPi.sh start" pi
+if [ -e /home/pi/RadioPi/controller/rc.radiopi ]; then
+	printf "Starting RadioPi ...\n"
+	su pi -c "/home/pi/RadioPi/controller/rc.radiopi" &
+fi
 
 exit 0

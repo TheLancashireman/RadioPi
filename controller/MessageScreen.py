@@ -7,8 +7,8 @@
 from Menu import Menu, MenuThing
 
 class MessageScreen(Menu):
-	def __init__(self, ui, lcd, m, ack):
-		Menu.__init__(self, ui, lcd)
+	def __init__(self, ui, lcd, eq, m, ack):
+		Menu.__init__(self, ui, lcd, eq)
 
 		self.things.append(MenuThing(m[0],	self.Nix,	''))
 
@@ -27,10 +27,4 @@ class MessageScreen(Menu):
 		self.current = 3
 
 	def Nix(self, mt, evt):
-		return False
-
-	def Back(self, mt, evt):
-		if evt == 'ok':
-			self.ui.Back()
-			return True
 		return False

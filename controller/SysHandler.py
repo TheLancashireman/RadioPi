@@ -6,6 +6,7 @@
 
 import os
 from Config import radiopi_cfg
+from RadioPiLib import Dbg_Print
 
 class SysHandler:
 	def __init__(self, eq):
@@ -27,17 +28,31 @@ class SysHandler:
 			return True
 
 		if evt[0:6] == "mount ":
-			print "SysHandler:", evt
+			Dbg_Print(5, "SysHandler:", evt)
 			dev = evt[6:len(evt)]
 			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
-			if os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
-				os.system("sudo mount -o ro " + dev + " " + mountpoint)
+			if not os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
+				e = os.system("sudo umount " + mountpoint)
+				if e == 0:
+					Dbg_Print(1, "Umounted", mountpoint)
+				else:
+					Dbg_Print(0, "Failed to umount", mountpoint)
+
+			e = os.system("sudo mount -o ro " + dev + " " + mountpoint)
+			if e == 0:
+				Dbg_Print(1, "Mounted", dev, "on", mountpoint)
+			else:
+				Dbg_Print(0, "Failed to mount", dev, "on", mountpoint)
+
 			return True
 
 		if evt == "umount":
 			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
-			if not os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
+			if os.path.isfile(os.path.join(mountpoint, '___NOT_MOUNTED___')):
+				Dbg_Print(0, mountpoint, "not mounted")
+			else:
 				os.system("sudo umount " + mountpoint)
+				Dbg_Print(1, "Umounted", mountpoint)
 			return True
 
 		return False

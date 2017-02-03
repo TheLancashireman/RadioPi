@@ -4,6 +4,9 @@
 #
 # (c) David Haworth
 
+import string
+import traceback
+
 from LcdHandler import LcdHandler
 from MainMenu import MainMenu
 from Browser import Browser
@@ -60,40 +63,40 @@ class UiHandler:
 # Enter the menu system
 #===========================================================
 	def Enter(self):
-		self.menustack = []							# Clear out existing menus (if any)
-		self.menu = MainMenu(self, self.lcd)		# Create the main menu.
+		self.menustack = []									# Clear out existing menus (if any)
+		self.menu = MainMenu(self, self.lcd, self.eq)		# Create the main menu.
 		self.menu.Show()
 
 #===========================================================
 # Enter the music browser at the specified place.
 #===========================================================
 	def EnterBrowser(self, dir):
-		self.menustack.append(self.menu)			# Push current menu.
-		self.menu = Browser(self, self.lcd, dir)	# Create a browser.
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = Browser(self, self.lcd, self.eq, dir)	# Create a browser.
 		self.menu.Show()
 
 #===========================================================
 # Enter the mount menu.
 #===========================================================
 	def EnterMountMenu(self):
-		self.menustack.append(self.menu)			# Push current menu.
-		self.menu = MountMenu(self, self.lcd)		# Create the menu.
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = MountMenu(self, self.lcd, self.eq)		# Create the menu.
 		self.menu.Show()
 
 #===========================================================
 # Show a message.
 #===========================================================
 	def ShowMessage(self, m, ack):
-		self.menustack.append(self.menu)					# Push current menu.
-		self.menu = MessageScreen(self, self.lcd, m, ack)	# Create the message screen.
+		self.menustack.append(self.menu)							# Push current menu.
+		self.menu = MessageScreen(self, self.lcd, self.eq, m, ack)	# Create the message screen.
 		self.menu.Show()
 
 #===========================================================
 # Ask a question
 #===========================================================
 	def AskYesNo(self, m):
-		self.menustack.append(self.menu)			# Push current menu.
-		self.menu = AskYesNo(self, self.lcd, m)		# Create the yes/no screen.
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = AskYesNo(self, self.lcd,self.eq, m)		# Create the yes/no screen.
 		self.menu.Show()
 
 #===========================================================
@@ -142,15 +145,17 @@ class UiHandler:
 				if self.count <= 0:
 					self.mode = mode_Home
 					self.force = True
-					self.HomeScreen()			# Redraw homw screen
+					self.HomeScreen()			# Redraw home screen
 			except:
 				self.mode = mode_Disconnected
+				print(traceback.format_exc())
 
 		elif self.mode == mode_Home:			# Update home screen
 			try:
 				self.HomeScreen()
 			except:
 				self.mode = mode_Disconnected
+				print(traceback.format_exc())
 
 		else:									# After some inactivity, revert to home screen.
 			self.count -= 1
@@ -255,15 +260,24 @@ class UiHandler:
 		l_album = ""
 		l_title = ""
 		l_dur = -1
+		l_time = -1
+		l_vol = -1
 		l_file = ""
+		l_name = ""
+		internetRadio = False;
 
 		s = self.mpd.Status()
-		l_vol = int(s["volume"])
-		l_state = s["state"]
+		if s:
+			for k in s.keys():
+				if k == "volume":
+					l_vol = int(s["volume"])
+				elif k == "state":
+					l_state = s["state"]
+				elif k == "elapsed":
+					l_time = int(float(s["elapsed"]))
+
 		if l_state == "stop":
 			l_time = -1
-		else:
-			l_time = int(float(s["elapsed"]))
 
 		s = self.mpd.CurrentSong()
 		if s:
@@ -278,8 +292,18 @@ class UiHandler:
 					l_dur = int(s["time"])
 				elif k == "file":
 					l_file = s["file"]
+				elif k == "name":
+					l_name = s["name"]
 
-			if l_title == "" and l_file != "":
+			if l_file[0:7] == "http://" or l_file[0:8] == "https://":
+				internetRadio = True
+				l_artist = l_name
+				if l_album == "":
+					if string.find(l_title, " - ") >= 0:
+						l_album, l_title = string.split(l_title, " - ", 1)
+					elif string.find(l_title, "-") >= 0:
+						l_album, l_title = string.split(l_title, "-", 1)
+			elif l_title == "" and l_file != "":
 				x, l_title = os.path.split(l_file)
 
 		else:
@@ -306,7 +330,12 @@ class UiHandler:
 			self.lcd.WriteAt(row_title, col_title, self.title);
 			self.lcd.ClearEol()
 
-		if l_dur < 0:
+		if internetRadio:
+			self.dur = -2
+			self.time = -2
+			buf = "%-16s" % ("Stream: "+l_state)
+			self.lcd.WriteAt(row_time, col_time, buf)
+		elif l_dur < 0:
 			if self.force or self.dur != l_dur:
 				self.dur = l_dur
 				self.time = -1
@@ -331,7 +360,10 @@ class UiHandler:
 		
 		if self.force or self.vol != l_vol:
 			self.vol = l_vol
-			s_vol = "%3d"%(l_vol)
+			if l_vol < 0:
+				s_vol = "---"
+			else:
+				s_vol = "%3d"%(l_vol)
 			self.lcd.WriteAt(row_vol, col_vol, s_vol)
 
 		self.force = False

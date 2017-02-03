@@ -7,6 +7,7 @@
 import os
 import mpd
 from mpd import MPDClient
+from RadioPiLib import Dbg_Print
 
 class MpdHandler:
 	def __init__(self, eq):
@@ -86,8 +87,10 @@ class MpdHandler:
 
 	def Add(self, ff):
 		if os.path.isfile(ff):
+			Dbg_Print(5, "add file", ff)
 			self.mpdc.add("file://"+ff)
 		elif os.path.isdir(ff):
+			Dbg_Print(5, "add album", ff)
 			files = os.listdir(ff)
 			files.sort()
 			for f in files:
@@ -97,6 +100,7 @@ class MpdHandler:
 	# Event handler
 	def Event(self, evt):
 		if evt == 'restartmpd':
+			Dbg_Print(1, "Restart mpd")
 			os.system("sudo /etc/init.d/mpd restart")
 			self.mpdConnected = False
 			return True

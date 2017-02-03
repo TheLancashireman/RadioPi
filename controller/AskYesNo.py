@@ -7,8 +7,8 @@
 from Menu import Menu, MenuThing
 
 class AskYesNo(Menu):
-	def __init__(self, ui, lcd, m):
-		Menu.__init__(self, ui, lcd)
+	def __init__(self, ui, lcd, eq, m):
+		Menu.__init__(self, ui, lcd, eq)
 
 		self.things.append(MenuThing(m[0],	self.Nix,	''))
 

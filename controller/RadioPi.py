@@ -12,9 +12,10 @@ from IrRc import IrRc
 from Lirc import Lirc
 from Rotary import Rotary
 from WebSock import WebSockHandler
+from RadioPiLib import Dbg_Print
 import time
 
-sleepyTime = 0.05	# Sleep time in seconds
+sleepyTime = 0.005	# Sleep time in seconds
 longTime = 0.5		# Long time for timer events
 longTicks = longTime/sleepyTime
 
@@ -37,7 +38,7 @@ while True:
 	e = eq.GetEvent()
 	while ( e != "" ):
 		handled = False
-		print e		# Debug
+		Dbg_Print(10, e)
 		for h in handler:
 			if not handled:
 				handled = h.Event(e)
@@ -46,7 +47,7 @@ while True:
 	#
 	count += 1
 	if count >= longTicks:
-		#print 'Timer event'
+		Dbg_Print(20, "Timer event")
 		for s in source:
 			s.Timer()
 		for h in handler:

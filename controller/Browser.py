@@ -9,8 +9,8 @@ from Config import radiopi_cfg
 import os
 
 class Browser(Menu):
-	def __init__(self, ui, lcd, dir):
-		Menu.__init__(self, ui, lcd)
+	def __init__(self, ui, lcd, eq, dir):
+		Menu.__init__(self, ui, lcd, eq)
 		self.things.append(MenuThing('Add all',	self.AddAll,	dir))	# Might get removed later
 		self.things.append(MenuThing('Back',	self.Back,		''))
 
@@ -45,14 +45,9 @@ class Browser(Menu):
 	# Add all the playable files in the MenuThing's directory
 	def AddAll(self, mt, evt):
 		if evt == 'ok':
-			self.ui.mpd.Add(mt.data)
+			self.eq.PutEvent("add " + mt.data)
+#			self.ui.mpd.Add(mt.data)
 			self.Ack()
-			return True
-		return False
-
-	def Back(self, mt, evt):
-		if evt == 'ok':
-			self.ui.Back()
 			return True
 		return False
 
@@ -66,7 +61,8 @@ class Browser(Menu):
 
 	def FileAction(self, mt, evt):
 		if evt == 'ok':
-			self.ui.mpd.Add(mt.data)
+			self.eq.PutEvent("add " + mt.data)
+#			self.ui.mpd.Add(mt.data)
 			self.Ack()
 			return True
 		return False

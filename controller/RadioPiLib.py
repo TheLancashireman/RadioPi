@@ -9,9 +9,14 @@ import stat
 from Config import radiopi_cfg
 
 # Print message if debug level exceeds threshold.
-def Dbg_Print(l,x):
-	if l <= radiopi_cfg.dbg_level:
-		print "RadioPi Dbg:", x
+def Dbg_Print(l,*args):
+	if l == 0:
+		print "RadioPi Error:", ' '.join(str(x) for x in args)
+	elif l <= radiopi_cfg.dbg_level:
+		if l == 1:
+			print "RadioPi Info.:", ' '.join(str(x) for x in args)
+		else:
+			print "RadioPi Debug:", ' '.join(str(x) for x in args)
 
 # Return a list of mountable block devices in given directory
 def MountableDevs(d):

@@ -4,6 +4,7 @@
 #
 # (c) David Haworth
 from Config import Config
+from RadioPiLib import Dbg_Print
 
 # MenuThing.py - a thing on a menu
 #
@@ -17,16 +18,23 @@ class MenuThing:
 		self.data = d
 
 class Menu:
-	def __init__(self, ui, lcd):
+	def __init__(self, ui, lcd, eq):
 		cfg = Config()
 		self.ui = ui
 		self.lcd = lcd
+		self.eq = eq
 		self.cursor = cfg.menu_cursor
 		self.ack_cursor = cfg.ack_cursor
 		self.top = 0			# First visible thing
 		self.current = 0		# Current position of pointer
 		self.min_current = 0	# Lowest index of pointer - nonzero for dialogs.
 		self.things = []
+
+	def Back(self, mt, evt):
+		if evt == 'ok':
+			self.ui.Back()
+			return True
+		return False
 
 	def Show(self):
 		nrows = self.lcd.GetNRows()
@@ -56,7 +64,7 @@ class Menu:
 	def PtrDown(self):
 		max = len(self.things)-1
 		if self.current < max:
-			print 'PtrDown ', max, self.current
+			Dbg_Print(5, 'PtrDown', max, self.current)
 			self.current += 1
 			if self.current < self.top+self.lcd.GetNRows():
 				self.lcd.Write('\r \r\n' + self.cursor + '\r')

@@ -7,13 +7,11 @@ if [ "$1" = "start" ]; then
 	exit 0
 fi
 
-sleep 5
-
 while true; do
+	sleep 5
 	if [ -f radiopi.log ]; then
 		mv radiopi.log radiopi.log.o
 	fi
 	./RadioPi.py > radiopi.log 2>&1
-	sleep 1
 done
 
