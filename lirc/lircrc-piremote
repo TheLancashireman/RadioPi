@@ -19,7 +19,7 @@ end
 begin
 button = KEY_CLOSE
 prog = RadioPi
-config = foo
+config = home
 end
 
 begin

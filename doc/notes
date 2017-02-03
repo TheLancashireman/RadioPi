@@ -66,5 +66,31 @@ To "train" a remote control:
          sockid = lirc.init("myprogram", blocking=False)
          lirc.set_blocking(True, sockid) # or this
 
-   
+WiFi setup (allegedly)
+   sudo ifconfig wlan0 down
+   sudo dhclient -r wlan0
+   sudo ifconfig wlan0 up
+   sudo iwconfig wlan0 essid "OurHouse"
+   sudo iwconfig wlan0 mode Managed
+   sudo dhclient wlan0
+but not working
 
+2nd attempt:
+ifconfig wlan0 down
+dhclient -r wlan0
+ifconfig wlan0 up
+#iwconfig wlan0 essid "OurHouse"  ???
+#iwconfig wlan0 mode Managed
+wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant/wpa_supplicant.conf
+dhclient wlan0
+
+Python statements to use mpdclient
+
+import mpd
+from mpd import MPDClient
+mpdc = MPDClient()
+mpdc.timeout = 99999
+mpdc.idletimeout = None
+mpdc.connect('/run/mpd/socket', 6600)
+mpdc.status()
+mpdc.currentsong()

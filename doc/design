@@ -81,3 +81,58 @@ Software:
    tbd -- set cursor to pos
   Characters past col 20 ignored
 
+Menu structure as of 2017-03-12:
+
+Home screen (mpd status)
+  Main Menu
+    Back
+    Clear playlist
+    Add to playlist
+      Back
+      <files & directories in /home/pi/Music>
+    Mount external
+      Back
+      <list of block devices>
+    Umount external
+    Exit/restart RadioPi
+      Yes
+      No
+    Reboot
+      Yes
+      No
+    Shutdown
+      Yes
+      No
+    MPD options (empty)
+    Manage playlist
+    Test (to be removed)
+
+Menu structure (new)
+
+Home screen (mpd status)
+  Main Menu
+    Back
+    Clear playlist
+    Add to playlist
+      Back
+      <files & directories in /home/pi/Music>
+    Internet radio
+    External file system
+      Back
+      Mount external
+        Back
+        <list of block devices>
+      Umount external
+    System
+      Exit/restart RadioPi
+        Yes
+        No
+      Reboot
+        Yes
+        No
+      Shutdown
+        Yes
+        No
+    MPD options (empty)
+    Manage playlist
+    Test (to be removed)
