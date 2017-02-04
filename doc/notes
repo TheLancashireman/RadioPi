@@ -94,3 +94,7 @@ mpdc.idletimeout = None
 mpdc.connect('/run/mpd/socket', 6600)
 mpdc.status()
 mpdc.currentsong()
+mpdc.stop()
+mpdc.clear()
+url = "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1_mf_p"
+mpdc.add(url)
