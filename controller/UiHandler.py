@@ -10,6 +10,7 @@ import traceback
 from LcdHandler import LcdHandler
 from MainMenu import MainMenu
 from Browser import Browser
+from StationList import StationList
 from MountMenu import MountMenu
 from MessageScreen import MessageScreen
 from AskYesNo import AskYesNo
@@ -73,6 +74,14 @@ class UiHandler:
 	def EnterBrowser(self, dir):
 		self.menustack.append(self.menu)					# Push current menu.
 		self.menu = Browser(self, self.lcd, self.eq, dir)	# Create a browser.
+		self.menu.Show()
+
+#===========================================================
+# Enter the station list menu.
+#===========================================================
+	def EnterStationList(self):
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = StationList(self, self.lcd, self.eq)	# Create the menu.
 		self.menu.Show()
 
 #===========================================================
@@ -236,10 +245,8 @@ class UiHandler:
 	def StartupScreen(self):
 		if self.force:
 			self.lcd.HomeAndClear()
-			self.lcd.Write("      RadioPi\r\n")
-			self.lcd.Write("\r\n")
-			self.lcd.Write("\r\n")
-			self.lcd.Write("  waiting for mpd")
+			self.lcd.WriteAt(1, 1, "RadioPi\r\n")
+			self.lcd.WriteAt(4, 1, "waiting for mpd")
 		self.force = False
 
 #===========================================================

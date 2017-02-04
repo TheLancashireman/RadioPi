@@ -26,17 +26,5 @@ class MountMenu(Menu):
 		if evt == "ok":
 			self.eq.PutEvent("mount " + mt.data)
 			self.Ack()
-# FIXME remove block if new method is OK
-#			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
-#			if not os.path.isfile(os.path.join(mountpoint, "___NOT_MOUNTED___")):
-#				e = os.system("sudo umount " + mountpoint)
-#				if e != 0:
-#					Dbg_Print(0, "Failed to umount", mountpoint)
-#			e = os.system("sudo mount -o ro " + mt.data + " " + mountpoint)
-#			if e == 0:
-#				Dbg_Print(1, "Mounted", mt.data, "on", mountpoint)
-#				self.Ack()
-#			else:
-#				Dbg_Print(0, "Failed to mount", mt.data, "on", mountpoint)
 			return True
 		return False

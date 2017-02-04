@@ -14,6 +14,7 @@ class MainMenu(Menu):
 		self.things.append(MenuThing("Back",			self.Back,				""))
 		self.things.append(MenuThing("Clear playlist",	self.ClearPlaylist,		""))
 		self.things.append(MenuThing("Add to playlist",	self.EnterBrowser,		""))
+		self.things.append(MenuThing("Internet radio",	self.SelectStation,		""))
 		self.things.append(MenuThing("Mount external",	self.MountExternal,		""))
 		self.things.append(MenuThing("Umount external",	self.UmountExternal,	""))
 		self.things.append(MenuThing("Exit & restart",	self.Shutdown,			"e"))
@@ -26,7 +27,7 @@ class MainMenu(Menu):
 	def ClearPlaylist(self, mt, evt):
 		if evt == "ok":
 			Dbg_Print(5, "MainMenu.ClearPlaylist()")
-			self.ui.mpd.mpdc.clear()
+			self.eq.PutEvent("clear")
 			self.Ack()
 			return True
 		return False
@@ -35,6 +36,13 @@ class MainMenu(Menu):
 		if evt == "ok" or evt == "right":
 			Dbg_Print(5, "MainMenu.EnterBrowser()")
 			self.ui.EnterBrowser(radiopi_cfg.music_dir)
+			return True
+		return False
+
+	def SelectStation(self, mt, evt):
+		if evt == "ok" or evt == "right":
+			Dbg_Print(5, "MainMenu.SelectStation()")
+			self.ui.EnterStationList()
 			return True
 		return False
 
@@ -54,16 +62,6 @@ class MainMenu(Menu):
 			Dbg_Print(5, "MainMenu.UMountExternal()")
 			self.eq.PutEvent("umount")
 			self.Ack()
-# FIXME remove block if new method is OK
-#			mountpoint = os.path.join(radiopi_cfg.music_dir, radiopi_cfg.music_ext)
-#			if os.path.isfile(os.path.join(mountpoint, "___NOT_MOUNTED___")):
-#				self.Ack()
-#			else:
-#				e = os.system("sudo umount " + mountpoint)
-#				if e == 0:
-#					self.Ack()
-#				else:
-#					Dbg_Print(0, "Failed to umount", mountpoint)
 			return True
 		return False
 

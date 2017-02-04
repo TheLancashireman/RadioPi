@@ -46,7 +46,6 @@ class Browser(Menu):
 	def AddAll(self, mt, evt):
 		if evt == 'ok':
 			self.eq.PutEvent("add " + mt.data)
-#			self.ui.mpd.Add(mt.data)
 			self.Ack()
 			return True
 		return False
@@ -62,7 +61,6 @@ class Browser(Menu):
 	def FileAction(self, mt, evt):
 		if evt == 'ok':
 			self.eq.PutEvent("add " + mt.data)
-#			self.ui.mpd.Add(mt.data)
 			self.Ack()
 			return True
 		return False
