@@ -12,6 +12,8 @@ from MainMenu import MainMenu
 from Browser import Browser
 from StationList import StationList
 from MountMenu import MountMenu
+from SysMenu import SysMenu
+from NetMenu import NetMenu
 from MessageScreen import MessageScreen
 from AskYesNo import AskYesNo
 
@@ -90,6 +92,22 @@ class UiHandler:
 	def EnterMountMenu(self):
 		self.menustack.append(self.menu)					# Push current menu.
 		self.menu = MountMenu(self, self.lcd, self.eq)		# Create the menu.
+		self.menu.Show()
+
+#===========================================================
+# Enter the network menu.
+#===========================================================
+	def EnterNetMenu(self):
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = NetMenu(self, self.lcd, self.eq)		# Create the menu.
+		self.menu.Show()
+
+#===========================================================
+# Enter the system menu.
+#===========================================================
+	def EnterSysMenu(self):
+		self.menustack.append(self.menu)					# Push current menu.
+		self.menu = SysMenu(self, self.lcd, self.eq)		# Create the menu.
 		self.menu.Show()
 
 #===========================================================
@@ -271,6 +289,7 @@ class UiHandler:
 		l_vol = -1
 		l_file = ""
 		l_name = ""
+		l_state = ""
 		internetRadio = False;
 
 		s = self.mpd.Status()

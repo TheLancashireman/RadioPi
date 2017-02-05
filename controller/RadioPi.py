@@ -7,6 +7,7 @@
 from EventQueue import EventQueue
 from MpdHandler import MpdHandler
 from SysHandler import SysHandler
+from NetHandler import NetHandler
 from UiHandler import UiHandler
 from IrRc import IrRc
 from Lirc import Lirc
@@ -23,7 +24,7 @@ eq = EventQueue()
 mpdh = MpdHandler(eq)
 
 source = [ Lirc(eq), IrRc(eq), Rotary(eq, sleepyTime), WebSockHandler(eq) ]
-handler = [ mpdh, UiHandler(eq, mpdh), SysHandler(eq) ]
+handler = [ mpdh, UiHandler(eq, mpdh), SysHandler(eq), NetHandler(eq) ]
 
 count = 0
 
