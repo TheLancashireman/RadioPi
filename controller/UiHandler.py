@@ -223,21 +223,21 @@ class UiHandler:
 
 			return False						# Ignore all other events while on home screen.
 
-		if evt == "home":						# Anywhere in the menus, 'home' exits back to the home screen
-			self.menu = None					# Clear the menu stack
-			self.menustack = []
-			self.ModeHome()
-			return True
-
 		# Translate rotary control events for menu mode and handle locally (don't requeue)
 		if evt == "R+":
 			evt = "down"
 		elif evt == "R-":
 			evt = "up"
 		elif evt == "Rl":
-			evt = "back"
+			evt = "home"
 		elif evt == "Rs":
 			evt = "ok"
+
+		if evt == "home":						# Anywhere in the menus, 'home' exits back to the home screen
+			self.menu = None					# Clear the menu stack
+			self.menustack = []
+			self.ModeHome()
+			return True
 
 		# Menu mode. Handle up/down/left/back as navigation on existing menu stack.
 		if evt == "back" or evt == "left" :
