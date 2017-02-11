@@ -52,6 +52,10 @@ class WebSock(WebSocket):
 				evtq.PutEvent("mount " + os.path.join("/dev", d))
 			else:
 				Dbg_Print(0, "Websock invalid device:", msg)
+		elif msg[0:8] == "station ":
+			url = msg[8:len(msg)]
+			if url[0:7] == "http://" or url[0:8] == "https://":
+				evtq.PutEvent("station " + url)
 		else:
 			Dbg_Print(0, "WebSock invalid command:", msg)
 

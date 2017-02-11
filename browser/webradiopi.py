@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import urllib
+import string
 from Config import radiopi_cfg
 from RadioPiLib import MountableDevs
 
@@ -88,6 +89,8 @@ def process_request():
 			confirm_page(query_list[0])
 		elif query_list[0] == "mount":
 				list_mounts()
+		elif query_list[0] == "radio":
+				list_stations()
 		elif query_list[0] == "browse":
 			if len(query_list) > 1:
 				list_dir(query_list[1])
@@ -106,6 +109,7 @@ def front_page():
   <ul id="playlistcontrols">
    <li><a href="webradiopi.py?browse">Add tracks to playlist</a></li>
    <li><a href="webradiopi.py?clear">Clear playlist</a></li>
+   <li><a href="webradiopi.py?radio">Internet radio stations</a></li>
    <li><a href="webradiopi.py?mount">Mount an external filesystem</a></li>
    <li><a href="webradiopi.py?umount">Unmount the external filesystem</a></li>
    <li><a href="webradiopi.py?restart">Restart the RadioPi program</a></li>
@@ -279,6 +283,46 @@ def list_mounts():
   </div>
 """
 
+	print_page("WebRadioPi", body, "webradiopi")
+
+###
+# list_stations() - create a page listing the internet radio stations
+###
+def list_stations():
+	body = ""
+	dir_title = "Station list"
+	btn_sel = "<img class=\"navbutton\" src=\"/images/btn-play.svg\"/>"
+	btn_back = "<a href=\"javascript:rp_back()\"><img class=\"navbutton\" src=\"/images/btn-back.svg\"/></a>"
+
+	body += """
+  <div class="directorylisting">
+   <div class="directoryentry">
+    <div class="directorybutton">"""+btn_back+"""</div>
+    <div class="directorytext">"""+dir_title+"""</div>
+   </div>
+   <div class="directoryentry"><hr/></div>
+"""
+
+	sl = open(radiopi_cfg.stationlist, "r")
+	for line in sl:
+		if line[0] != "#":
+			line = string.rstrip(string.lstrip(line))   # Remove leading and trailing whitespace (incl. newline)
+			if string.find(line, "|") > 0:
+				name,url = string.split(line, "|")
+				station_link = "<a href=\"javascript:rp_station('" + url + "')\">"
+				station_link += btn_sel + "</a>"
+				body += """
+   <div class="directoryentry">
+    <div class="directorybutton">"""+station_link+"""</div>
+    <div class="directorytext">"""+name+"""</div>
+   </div>"""
+
+	sl.close()
+
+
+	body += """
+  </div>
+"""
 	print_page("WebRadioPi", body, "webradiopi")
 
 ###

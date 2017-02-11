@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sleep 10
+sleep 5
 exec /home/pi/RadioPi/controller/RadioPi.sh
