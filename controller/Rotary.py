@@ -18,7 +18,7 @@ import RPi.GPIO as GPIO
 encoderU = 4			# BCM no. of clockwise pulses
 encoderD = 3			# BCM no. of anticlockwise pulses
 encoderP = 2			# BCM no. of pressbutton
-longPressTime = 0.25	# Duration of a long press
+longPressTime = 0.5		# Duration of a long press
 
 class Rotary:
 	def __init__(self, eq, sleepyTime):
