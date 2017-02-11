@@ -322,6 +322,10 @@ def print_page(title, body_html, css):
         onclick="rp_cmd('>>')"/></div>
    <div class="playerbutton"><img class="playerbutton" src="/images/btn-next.svg" alt="next"
         onclick="rp_cmd('>|')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-volup.svg" alt="vol+"
+        onclick="rp_cmd('vol+')"/></div>
+   <div class="playerbutton"><img class="playerbutton" src="/images/btn-voldn.svg" alt="vol-"
+        onclick="rp_cmd('vol-')"/></div>
    <div class="clearall"></div>
    <hr/>
   </div>
