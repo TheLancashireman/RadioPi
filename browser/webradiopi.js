@@ -67,3 +67,10 @@ rp_mount = function(f) {
 	socket.send(message);
 	window.history.back()
 }
+
+// Performs radio station selection
+rp_station = function(f) {
+	var message = 'station ' + f;
+	socket.send(message);
+	window.history.back()
+}
