@@ -1,0 +1,2 @@
+This directory contains some attempts to get an SPI SD-card module to work with the Pi.
+Unfortunately some cards (mainly official SanDisk cards) just refused to work, so I gave up.
