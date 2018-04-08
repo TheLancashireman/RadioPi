@@ -5,17 +5,18 @@ Hardware:
 =========
 
   Raspberry Pi model B (might work with other models too)
-  Rotary encoder with press button
-
-  3-position switch (use not decided)
-  Single pushbutton (use not decided)
-
+  Rotary encoder with press button, along with debounce and logic to decode to
+    up/down pulses. Ask me for a circuit diagram if you want one.
+  38kHz IR receiver
   lcdTerminal (see separate project)
+
+Additionally, I used this extra hardware to build the player into an old transistor radio.
 
   amplifier & speaker
   mono volume control + mixing resistors
   headphone jack with disconnect
   micro USB socket for power --> 5v supplies Pi and amplifier
+  small PSU smoothing PCB (on stripboard) to try to filter the Pi's noise.
 
 
 Wiring:

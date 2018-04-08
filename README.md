@@ -7,5 +7,7 @@ IR remote control.
 4x20 character display (see separate lcdTerminal project.
 Web interface using websocket to control the player.
 
+ToDo: write a HowTo guide.
+
 License: GPL version 3, except for SimpleWebSocketServer_dh.py, which I adapted
 from SimpleWebSocketServer.py (see https://github.com/dpallot/simple-websocket-server).
