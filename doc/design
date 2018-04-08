@@ -10,7 +10,7 @@ Hardware:
   3-position switch (use not decided)
   Single pushbutton (use not decided)
 
-  LCD display 4 lines x 20 characters, connected via USB (see lcdTerminal sub-project)
+  lcdTerminal (see separate project)
 
   amplifier & speaker
   mono volume control + mixing resistors
@@ -31,55 +31,6 @@ Wiring:
                       gnd --> pi
                       gnd --> amplifier
 
-
-
-
-
-lcdTerminal design
-==================
-
-Hardware:
-=========
-
-  LCD module
-  Arduino nano
-  Contrast potentiometer
-  Backlight resistor(s)
-
-  Connections:
-    LCD                     Arduino
-    1  VSS                  GND
-    2  VDD                  5v
-    3  VO                   wiper of potentiometer 47k between 5v and gnd
-    4  RS                   D2
-    5  R/W                  D3
-    6  E                    D4
-    7  DB0                  D5
-    8  DB1                  D6
-    9  DB2                  D7
-    10 DB3                  D8
-    11 DB4                  D9
-    12 DB5                  D10
-    13 DB6                  D11
-    14 DB7                  D12
-    15 + backlight          5V via 47R (possibly switched for variable brightnes
-    16 - backlight          GND
-  These connections allow the arduino to be connected directly to pins 4..14 of the LCD module.
-  The other pins are brought out by flying leads to veroboard.
-
-Software:
-=========
-
-  Use "LiquidCrystal" library for display
-  Store 4 lines of 20 characters to allow scrolling
-
-  Input from uart --> display at current postion, except:
-   CR  -- move to col 0
-   LF  -- move down (scroll if at bottom)
-   tbd -- clear screen
-   tbd -- move up (scroll if at top)
-   tbd -- set cursor to pos
-  Characters past col 20 ignored
 
 Menu structure as of 2017-03-12:
 
