@@ -10,4 +10,4 @@ A music player/internet radio based on a Raspberry Pi
 ToDo: write a HowTo guide.
 
 License: GPL version 3, except for SimpleWebSocketServer_dh.py, which I adapted
-from SimpleWebSocketServer.py (see https://github.com/dpallot/simple-websocket-server).
+from SimpleWebSocketServer.py (see https://github.com/dpallot/simple-websocket-server)
